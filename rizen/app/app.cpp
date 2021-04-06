@@ -3,6 +3,7 @@
 App::App() {}
 App::~App() 
 {
+    delete m_renderer2D;
     SDL_GL_DeleteContext(m_glContext);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -45,13 +46,11 @@ bool App::init(const AppInfo& info)
     // init input
     Input::init(glm::vec2(info.sizeX, info.sizeY));
 
-    return true;
-}
+    // init renderer2D
+    m_renderer2D = new Renderer2D();
+    m_renderer2D->init();
 
-void App::update()
-{
-    begin();
-    end();
+    return true;
 }
 
 void App::begin()

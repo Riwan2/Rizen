@@ -1,8 +1,9 @@
 #ifndef APP_H
 #define APP_H
 
-#include <GL/glew.h>
+#include "../utils/glew_utils.h"
 #include "input.h"
+#include "../opengl/opengl_2d.h"
 
 struct AppInfo {
     const char* title = "rizen";
@@ -19,8 +20,10 @@ public:
     ~App();
 
     bool init(const AppInfo& info);
-    void update();
+    void begin();
+    void end();
     
+    Renderer2D* renderer2D() { return m_renderer2D; }
     bool onQuit() {
         return Input::onQuit() || Input::keyPressed(SDLK_ESCAPE);
     }
@@ -28,9 +31,7 @@ public:
 private:
     SDL_Window* m_window;
     SDL_GLContext m_glContext;
-
-    void begin();
-    void end();
+    Renderer2D* m_renderer2D;
 };
 
 #endif //APP_H

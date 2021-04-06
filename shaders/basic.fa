@@ -1,0 +1,14 @@
+#version 330 core
+
+uniform sampler2D aTexture;
+out vec4 FragColor;
+
+uniform vec3 color = vec3(1.0, 1.0, 1.0);
+
+in vec2 TexCoord;
+
+void main()
+{
+    FragColor = vec4(color, 1.0);
+	//if (FragColor.a < 0.5) discard;
+}

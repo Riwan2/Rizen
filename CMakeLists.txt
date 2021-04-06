@@ -18,7 +18,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMAKE")
 
 # source files
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES 
+    main.cpp
+)
 
 message("")
 message(STATUS "SOURCE entry point : " ${SOURCE_FILES})
@@ -28,6 +30,8 @@ set(RIZEN_SOURCE_FILES
     ../rizen/app/app.cpp
     ../rizen/app/input.cpp
     ../rizen/utils/glm_utils.cpp
+    ../rizen/opengl/opengl_2d.cpp
+    ../rizen/opengl/shader.cpp
 )
 
 add_library(rizen STATIC ${RIZEN_SOURCE_FILES})
