@@ -3,8 +3,8 @@
 App::App() {}
 App::~App() 
 {
-    delete m_renderer2D;
-    SDL_GL_DeleteContext(m_glContext);
+    delete m_renderer_2d;
+    SDL_GL_DeleteContext(m_gl_context);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
 }
@@ -28,12 +28,12 @@ bool App::init(const AppInfo& info)
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     // init window
-    m_window = SDL_CreateWindow(info.title, info.posX, info.posY, info.sizeX, info.sizeY, info.flags);
+    m_window = SDL_CreateWindow(info.title, info.pos_x, info.pos_y, info.size_x, info.size_y, info.flags);
     if (m_window == NULL)
         return rizen_error("Window creation error: " + std::string(SDL_GetError()));
 
     // init context
-    m_glContext = SDL_GL_CreateContext(m_window);
+    m_gl_context = SDL_GL_CreateContext(m_window);
 
     // init glew
     glewExperimental = GL_TRUE;
@@ -44,19 +44,27 @@ bool App::init(const AppInfo& info)
     }
 
     // init input
-    Input::init(glm::vec2(info.sizeX, info.sizeY));
+    Input::init(glm::vec2(info.size_x, info.size_y));
 
     // init renderer2D
-    m_renderer2D = new Renderer2D();
-    m_renderer2D->init();
+    m_renderer_2d = new Renderer2D();
+    m_renderer_2d->init();
+
+    // init time
+    Time::init();
 
     return true;
 }
 
 void App::begin()
 {
+    #ifdef APP_DEBUG
+    std::cout << "update rate: " << Time::delta() << "ms\n";
+    #endif
+
+    Time::update();
     Input::update();
-    glViewport(0, 0, Input::displaySize().x, Input::displaySize().y);
+    glViewport(0, 0, Input::display_size().x, Input::display_size().y);
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 }

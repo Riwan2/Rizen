@@ -2,31 +2,31 @@
 #define INPUT_H
 
 #include <SDL.h>
-#include "../utils/glm_utils.h"
+#include <glm/glm.hpp>
 
 class Input {
 public:
     static void init(const glm::vec2& displaySize);
     static void update();
 
-    static bool keyDown(SDL_KeyCode key);
-    static bool keyPressed(SDL_KeyCode key);
-    static glm::vec2 mouseScroll() { return m_mouseScroll - m_lastMouseScroll; }
-    static glm::vec2 displaySize() { return m_displaySize; }
+    static bool key_down(SDL_KeyCode key);
+    static bool key_pressed(SDL_KeyCode key);
+    static glm::vec2 mouse_scroll() { return m_mouse_scroll - m_last_mouse_scroll; }
+    static glm::vec2 display_size() { return m_display_size; }
     
-    static bool onQuit() { return m_quit; }
+    static bool on_quit() { return m_quit; }
 
 private:
     static Uint8 m_keystates[SDL_NUM_SCANCODES];
     static Uint8 m_last_keystates[SDL_NUM_SCANCODES];
 
-    static glm::vec2 m_mouseScroll;
-    static glm::vec2 m_lastMouseScroll;
-    static glm::vec2 m_displaySize;
+    static glm::vec2 m_mouse_scroll;
+    static glm::vec2 m_last_mouse_scroll;
+    static glm::vec2 m_display_size;
 
     static bool m_quit;
 
-    static void processEvent(SDL_Event* event);
+    static void process_event(SDL_Event* event);
 };
 
 #endif //INPUT_H

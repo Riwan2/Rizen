@@ -4,17 +4,21 @@
 #include <fstream>
 #include <string>
 
-#include "../utils/glew_utils.h"
-#include "../utils/glm_utils.h"
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-const std::string shaderPath = "../shaders/";
+#include "../utils/log.h"
+
+const std::string shader_path = "../shaders/";
 
 class Shader {
 public:
     Shader();
     ~Shader();
 
-    bool init(const std::string& vertexFile, const std::string& fragmentFile);
+    bool init(const std::string& vertex_file, const std::string& fragment_file);
     void bind();
 
 	void set_mat4(const std::string& name, const glm::mat4& value);

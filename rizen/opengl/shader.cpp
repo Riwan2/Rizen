@@ -6,13 +6,13 @@ Shader::~Shader()
     glDeleteProgram(m_program);
 }
 
-bool Shader::init(const std::string& vertexFile, const std::string& fragmentFile)
+bool Shader::init(const std::string& vertex_file, const std::string& fragment_file)
 {
 	m_program = glCreateProgram();
 
-	if (!load_vertex(std::move(vertexFile)))
+	if (!load_vertex(std::move(vertex_file)))
         return false;
-	if (!load_fragment(std::move(fragmentFile)))
+	if (!load_fragment(std::move(fragment_file)))
         return false;
 
 	glLinkProgram(m_program);
@@ -64,10 +64,10 @@ bool Shader::load_vertex(const std::string& filename)
 {
 	m_vertex = glCreateShader(GL_VERTEX_SHADER);
 	
-	std::string vertexSource;
-	if (!read_from_file(shaderPath + filename, &vertexSource))
+	std::string vertex_source;
+	if (!read_from_file(shader_path + filename, &vertex_source))
         return false;
-	if (!compile_shader(vertexSource.c_str(), m_vertex, "vertex"))
+	if (!compile_shader(vertex_source.c_str(), m_vertex, "vertex"))
         return false;
 
 	glAttachShader(m_program, m_vertex);
@@ -78,10 +78,10 @@ bool Shader::load_fragment(const std::string& filename)
 {
 	m_fragment = glCreateShader(GL_FRAGMENT_SHADER);
 
-	std::string fragmentSource;
-	if (!read_from_file(shaderPath + filename, &fragmentSource))
+	std::string fragment_source;
+	if (!read_from_file(shader_path + filename, &fragment_source))
         return false;
-	if (!compile_shader(fragmentSource.c_str(), m_fragment, "fragment"))
+	if (!compile_shader(fragment_source.c_str(), m_fragment, "fragment"))
         return false;
 
 	glAttachShader(m_program, m_fragment);

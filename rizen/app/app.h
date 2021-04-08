@@ -1,16 +1,18 @@
 #ifndef APP_H
 #define APP_H
 
-#include "../utils/glew_utils.h"
 #include "input.h"
 #include "../opengl/opengl_2d.h"
+#include "../utils/rizen_time.h"
+
+//#define APP_DEBUG
 
 struct AppInfo {
     const char* title = "rizen";
-    int posX = SDL_WINDOWPOS_CENTERED;
-    int posY = SDL_WINDOWPOS_CENTERED;
-    int sizeX = 400;
-    int sizeY = 400;
+    int pos_x = SDL_WINDOWPOS_CENTERED;
+    int pos_y = SDL_WINDOWPOS_CENTERED;
+    int size_x = 400;
+    int size_y = 400;
     int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 };
 
@@ -23,15 +25,15 @@ public:
     void begin();
     void end();
     
-    Renderer2D* renderer2D() { return m_renderer2D; }
-    bool onQuit() {
-        return Input::onQuit() || Input::keyPressed(SDLK_ESCAPE);
+    Renderer2D* renderer_2d() { return m_renderer_2d; }
+    bool on_quit() {
+        return Input::on_quit() || Input::key_pressed(SDLK_ESCAPE);
     }
     
 private:
     SDL_Window* m_window;
-    SDL_GLContext m_glContext;
-    Renderer2D* m_renderer2D;
+    SDL_GLContext m_gl_context;
+    Renderer2D* m_renderer_2d;
 };
 
 #endif //APP_H

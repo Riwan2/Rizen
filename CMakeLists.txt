@@ -27,9 +27,10 @@ message(STATUS "SOURCE entry point : " ${SOURCE_FILES})
 
 # rizen files
 set(RIZEN_SOURCE_FILES
+    ../rizen/utils/rizen_time.cpp
+    ../rizen/utils/rizen_math.cpp
     ../rizen/app/app.cpp
     ../rizen/app/input.cpp
-    ../rizen/utils/glm_utils.cpp
     ../rizen/opengl/opengl_2d.cpp
     ../rizen/opengl/shader.cpp
 )

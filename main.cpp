@@ -4,37 +4,37 @@
     Init
 */
 
-int col = 30;
+int col = 23;
+//int col = 100;
 float s_space = 10.0;
 float t_space = 2.0;
+float t_f = 1000.0;
 
 int row, nb_t;
-Square** tiles;
+Square* tiles;
 Shader shader;
 
 void init()
 {
-    shader.init("basic.vr", "basic.fa");
+    shader.init("2d/inst_basic.vr", "2d/inst_basic.fa");
 
-    glm::vec2 d_size = Input::displaySize();
+    glm::vec2 d_size = Input::display_size();
     float t_size = (d_size.x - s_space * 2) / (col) - t_space;
     row = (d_size.y - s_space * 2) / (t_size + t_space);
     nb_t = row * col;
 
-    tiles = new Square*[row];
-    for (int i = 0; i < row; i++)
-        tiles[i] = new Square[col];
+    tiles = new Square[nb_t];
 
     std::cout << "row: " << row << ", col: " << col << ", nb:" << nb_t << ", t_size: " << t_size << std::endl;
 
-    for (int y = 0; y < row; y++) {
-        for (int x = 0; x < col; x++) {
-            Square* t = &tiles[y][x];
-            t->set_size(glm::vec2(t_size, t_size));
-            t->set_pos(glm::vec2(x * (t_size + t_space) + s_space, y * (t_size + t_space) + s_space));
-            t->update_transform();
-            t->color = glm::vec3(1.0, x / (float)col, 0.5);
-        }
+    for (int i = 0; i < nb_t; i++) {
+        int y = i / col;
+        int x = i % col;
+        Square* t = &tiles[i];
+        t->set_size(glm::vec2(t_size, t_size));
+        t->set_pos(glm::vec2(x * (t_size + t_space) + s_space, y * (t_size + t_space) + s_space));
+        t->update_transform();
+        t->color = glm::vec4(1.0, x / (float)col, 0.5, 1.0);
     }
 }
 
@@ -44,31 +44,38 @@ void init()
 
 void update(App* app)
 {
-    if (Input::keyPressed(SDLK_RETURN)) {
+    if (Input::key_pressed(SDLK_RETURN)) {
         init();
         return;
     }
 
-    app->renderer2D()->begin(Input::displaySize(), &shader);
+    app->renderer_2d()->begin(Input::display_size(), &shader);
 
-    for (int y = 0; y < row; y++)
-        for (int x = 0; x < col; x++)
-            app->renderer2D()->renderSquare(tiles[y][x]);
+    for (int i = 0; i < nb_t; i++) {
+       int y = i / col;
+       int x = i % col;
+       Square* t = &tiles[i];
+       t->rotate(0.01 + (y / t_f) + (x / t_f));
+       t->update_transform();
+       t->update_rotation();
+    }
 
-    app->renderer2D()->end();
+    app->renderer_2d()->render_instanced_squares(tiles, nb_t);
+
+    app->renderer_2d()->end();
 }
 
 int main()
 {
     App* app = new App();
     AppInfo info;
-    info.sizeX = 820;
-    info.sizeY = 620;
+    info.size_x = 820;
+    info.size_y = 620;
     app->init(info);
 
     init();
 
-    while(!app->onQuit()) {
+    while(!app->on_quit()) {
         app->begin();
         update(app);
         app->end();

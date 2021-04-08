@@ -13,12 +13,15 @@ public:
     ~Mesh2D();
 
     void init(glm::vec2* vertices, int numVertices, GLuint* indices, int numIndices);
+
     virtual void render();
+    const int num_indices() const { return m_num_indices; }
+    const int vao() const { return m_vao; }
 
 protected:
     GLuint m_vao;
-    int m_numIndices;
-    int m_numVertices;
+    int m_num_indices;
+    int m_num_vertices;
 };
 
 /*
@@ -28,6 +31,8 @@ protected:
 struct Transform2D {
     Transform2D();
     void update();
+    // rotation takes long time
+    void update_rotation();
 
     glm::mat4 model;
     glm::vec2 pos;
@@ -42,6 +47,7 @@ struct Transform2D {
 
 struct Shape2D {
     void update_transform() { transform.update(); }
+    void update_rotation() { transform.update_rotation(); }
 
     void set_pos(const glm::vec2& pos) { transform.pos = pos; }
     void set_angle(const float& angle) { transform.angle = angle; }
@@ -66,7 +72,7 @@ struct Shape2D {
 */
 
 struct Square : public Shape2D {
-    glm::vec3 color;
+    glm::vec4 color = glm::vec4(1.0);
 };
 
 void create_square_mesh(Mesh2D* mesh);
@@ -81,14 +87,19 @@ public:
     ~Renderer2D();
 
     void init();
-    void begin(const glm::vec2& displaySize, Shader* shader);
-    void renderSquare(const Square& square);
+    void begin(const glm::vec2& display_size, Shader* shader);
+    void render_square(const Square& square);;
+    void render_instanced_squares(Square* squares, int num_squares);
     void end();
     
 private:
     Mesh2D* m_square;
+    GLuint m_inst_square_vbo;
+    GLuint m_squares_color_vbo;
     Shader* m_shader;
     glm::mat4 m_projection;
+
+    void init_inst_square();
 };
 
 #endif //OPENGL_2D_H
