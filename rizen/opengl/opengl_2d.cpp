@@ -160,14 +160,23 @@ void Renderer2D::begin(const glm::vec2& display_size, Shader* shader)
     m_shader->set_mat4("projection", m_projection);
 }
 
-void Renderer2D::render_square(const Square& square) 
+void Renderer2D::render_square(const Square& square, Texture* texture) 
 {
+    m_shader->set_bool("texture", false);
+    if (texture != nullptr) {
+        texture->bind();
+        m_shader->set_bool("textured", true);
+    }
+
     m_shader->set_mat4("model", square.transform.model);
-    m_shader->set_vec3("color", square.color);
+    m_shader->set_vec4("color", square.color);
     m_square->render();
+
+    if (texture != nullptr)
+        glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Renderer2D::render_instanced_squares(Square* squares, int num_squares)
+void Renderer2D::render_instanced_squares(Square* squares, int num_squares, Texture* texture)
 {
     glm::mat4* models = new glm::mat4[num_squares];
     glm::vec4* colors = new glm::vec4[num_squares];
@@ -184,9 +193,18 @@ void Renderer2D::render_instanced_squares(Square* squares, int num_squares)
     glBufferData(GL_ARRAY_BUFFER, num_squares * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, num_squares * sizeof(glm::vec4), colors);
 
+    m_shader->set_bool("textured", false);
+    if (texture != nullptr) {
+        texture->bind();
+        m_shader->set_bool("textured", true);
+    }
+
     glBindVertexArray(m_square->vao());
     glDrawElementsInstanced(GL_TRIANGLES, m_square->num_indices(), GL_UNSIGNED_INT, 0, num_squares);
     glBindVertexArray(0);
+
+    if (texture != nullptr)
+        glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Renderer2D::end() 

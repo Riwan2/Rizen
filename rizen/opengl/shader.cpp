@@ -44,6 +44,10 @@ void Shader::set_vec3(const std::string& name, const glm::vec3& value) {
 	glUniform3f(uniform_loc(name.c_str()), value.x, value.y, value.z);
 }
 
+void Shader::set_vec4(const std::string& name, const glm::vec4& value) {
+	glUniform4f(uniform_loc(name.c_str()), value.x, value.y, value.z, value.w);
+}
+
 void Shader::set_bool(const std::string& name, bool value) {
 	glUniform1i(uniform_loc(name.c_str()), value);
 }

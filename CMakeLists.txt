@@ -33,6 +33,7 @@ set(RIZEN_SOURCE_FILES
     ../rizen/app/input.cpp
     ../rizen/opengl/opengl_2d.cpp
     ../rizen/opengl/shader.cpp
+    ../rizen/opengl/texture.cpp
 )
 
 add_library(rizen STATIC ${RIZEN_SOURCE_FILES})

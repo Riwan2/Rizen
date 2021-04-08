@@ -2,6 +2,7 @@
 #define OPENGL_2D_H
 
 #include "shader.h"
+#include "texture.h"
 
 /*
     Mesh2D
@@ -88,8 +89,8 @@ public:
 
     void init();
     void begin(const glm::vec2& display_size, Shader* shader);
-    void render_square(const Square& square);;
-    void render_instanced_squares(Square* squares, int num_squares);
+    void render_square(const Square& square, Texture* texture = nullptr);
+    void render_instanced_squares(Square* squares, int num_squares, Texture* texture = nullptr);
     void end();
     
 private:

@@ -4,8 +4,8 @@
     Init
 */
 
-int col = 23;
-//int col = 100;
+//int col = 23;
+int col = 10;
 float s_space = 10.0;
 float t_space = 2.0;
 float t_f = 1000.0;
@@ -13,10 +13,12 @@ float t_f = 1000.0;
 int row, nb_t;
 Square* tiles;
 Shader shader;
+Texture texture;
 
 void init()
 {
     shader.init("2d/inst_basic.vr", "2d/inst_basic.fa");
+    texture.init_jpg("noise.jpg");
 
     glm::vec2 d_size = Input::display_size();
     float t_size = (d_size.x - s_space * 2) / (col) - t_space;
@@ -60,7 +62,7 @@ void update(App* app)
        t->update_rotation();
     }
 
-    app->renderer_2d()->render_instanced_squares(tiles, nb_t);
+    app->renderer_2d()->render_instanced_squares(tiles, nb_t, &texture);
 
     app->renderer_2d()->end();
 }
