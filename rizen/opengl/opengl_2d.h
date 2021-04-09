@@ -33,7 +33,7 @@ struct Transform2D {
     Transform2D();
     void update();
     // rotation takes long time
-    void update_rotation();
+    void update_rotated();
 
     glm::mat4 model;
     glm::vec2 pos;
@@ -48,7 +48,7 @@ struct Transform2D {
 
 struct Shape2D {
     void update_transform() { transform.update(); }
-    void update_rotation() { transform.update_rotation(); }
+    void update_rotated() { transform.update_rotated(); }
 
     void set_pos(const glm::vec2& pos) { transform.pos = pos; }
     void set_angle(const float& angle) { transform.angle = angle; }

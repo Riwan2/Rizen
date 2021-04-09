@@ -7,11 +7,7 @@
     Texture
 */
 
-Texture::Texture()
-{
-	//set_lighting();
-}
-
+Texture::Texture() {}
 Texture::~Texture()
 {
 	glDeleteTextures(1, &m_texture_id);
@@ -72,9 +68,9 @@ void Texture::init_framebuffer(const glm::vec2& size)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_id, 0);
-
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_id, 0);
 }
 
 void Texture::resize(const glm::vec2& size)
@@ -90,3 +86,58 @@ void Texture::resize(const glm::vec2& size)
 // 	m_reflectivity = reflectivity;
 // 	m_shineDamper = shineDamper;
 // }
+
+/*
+	FrameBuffer
+*/
+
+
+FrameBuffer::FrameBuffer() {}
+FrameBuffer::~FrameBuffer()
+{
+	delete m_texture;
+	glDeleteRenderbuffers(GL_RENDERBUFFER, &m_rbo);
+	glDeleteFramebuffers(GL_FRAMEBUFFER, &m_fbo);
+}
+
+void FrameBuffer::bind()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+}
+
+void FrameBuffer::unbind()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+bool FrameBuffer::init(const glm::vec2& size)
+{
+	glGenFramebuffers(1, &m_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+	glGenRenderbuffers(1, &m_rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, size.x, size.y);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
+
+	m_texture = new Texture();
+	m_texture->init_framebuffer(size);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		return rizen_error("frame buffer creation error");
+
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return true;
+}
+
+void FrameBuffer::resize(const glm::vec2& size)
+{
+	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, size.x, size.y);
+	m_texture->resize(size);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);	
+}

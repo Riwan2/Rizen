@@ -56,6 +56,12 @@ bool App::init(const AppInfo& info)
     return true;
 }
 
+void App::clear(const glm::vec4& color)
+{
+    glClearColor(color.x, color.y, color.z, color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void App::begin()
 {
     #ifdef APP_DEBUG
@@ -65,8 +71,6 @@ void App::begin()
     Time::update();
     Input::update();
     glViewport(0, 0, Input::display_size().x, Input::display_size().y);
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void App::end()

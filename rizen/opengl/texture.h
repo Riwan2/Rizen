@@ -7,6 +7,10 @@
 
 #include "../utils/log.h"
 
+/*
+	Texture
+*/
+
 const std::string texture_path = "../textures/";
 
 class Texture {
@@ -46,6 +50,28 @@ private:
 
 	bool init(const std::string& filename, GLint internal_format);
 	void setup_texture(GLint internal_format);
+};
+
+/*
+	FrameBuffer
+*/
+
+class FrameBuffer {
+public:
+	FrameBuffer();
+	~FrameBuffer();
+
+	bool init(const glm::vec2& size);
+	void bind();
+	void unbind();
+	void resize(const glm::vec2& size);
+
+	Texture* texture() const { return m_texture; }
+
+private:
+	GLuint m_rbo;
+	GLuint m_fbo;
+	Texture* m_texture;
 };
 
 #endif //TEXTURE_H

@@ -64,9 +64,12 @@ void Transform2D::update()
 	model = glm::scale(model, glm::vec3(size.x, size.y, 0.0f));
 }
 
-void Transform2D::update_rotation()
+void Transform2D::update_rotated()
 {
+    model = glm::mat4(1.0);
+    model = glm::translate(model, glm::vec3(pos.x + size.x * (0.5 - origin.x), pos.y + size.y * (0.5 - origin.y), 0.0f));
     model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
+	model = glm::scale(model, glm::vec3(size.x, size.y, 0.0f));
 }
 
 /*

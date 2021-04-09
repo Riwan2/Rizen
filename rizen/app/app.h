@@ -21,7 +21,8 @@ public:
     App();
     ~App();
 
-    bool init(const AppInfo& info);
+    bool init(const AppInfo& info);;
+    void clear(const glm::vec4& color = glm::vec4(0.0));
     void begin();
     void end();
     
