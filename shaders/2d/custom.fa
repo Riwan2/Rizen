@@ -1,0 +1,17 @@
+#version 330 core
+
+uniform sampler2D aTexture;
+uniform float u_time;
+
+uniform bool u_textured;
+uniform vec4 u_color;
+
+out vec4 FragColor;
+
+in vec2 TexCoord;
+
+void main()
+{
+    FragColor = vec4(cos(u_time / 1000), 0.6, 0.7, 1.0);
+	//if (FragColor.a < 0.5) discard;
+}
