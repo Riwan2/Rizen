@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-inline bool rizen_error(const std::string& text)
+static bool rizen_error(const std::string& text)
 {
     std::cerr << text << '\n';
     return false;

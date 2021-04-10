@@ -3,6 +3,7 @@
 
 #include "shader.h"
 #include "texture.h"
+#include "../utils/rizen_time.h"
 
 /*
     Mesh2D

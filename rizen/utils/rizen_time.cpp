@@ -4,21 +4,21 @@
     Time
 */
 
-std::chrono::system_clock::time_point Time::m_time_start;
-std::chrono::system_clock::time_point Time::m_time_current;
+std::chrono::steady_clock::time_point Time::m_time_start;
+std::chrono::steady_clock::time_point Time::m_time_current;
 double Time::m_elapsed = 0;
 double Time::m_last_elapsed = 0;
 double Time::m_delta = 0;
 
 void Time::init() 
 {
-    m_time_start = std::chrono::system_clock::now();
+    m_time_start = std::chrono::steady_clock::now();
     update();
 }
 
 void Time::update()
 {
-    m_time_current = std::chrono::system_clock::now();
+    m_time_current = std::chrono::steady_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(m_time_current - m_time_start);
     m_last_elapsed = m_elapsed;
     m_elapsed = elapsed_time.count();

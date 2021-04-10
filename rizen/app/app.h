@@ -3,7 +3,6 @@
 
 #include "input.h"
 #include "../opengl/opengl_2d.h"
-#include "../utils/rizen_time.h"
 
 //#define APP_DEBUG
 

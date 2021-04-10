@@ -18,8 +18,8 @@ public:
     static const char* str_time();
 
 private:
-    static std::chrono::system_clock::time_point m_time_start;
-    static std::chrono::system_clock::time_point m_time_current;
+    static std::chrono::steady_clock::time_point m_time_start;
+    static std::chrono::steady_clock::time_point m_time_current;
     static double m_elapsed;
     static double m_last_elapsed;
     static double m_delta;
