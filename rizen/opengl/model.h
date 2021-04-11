@@ -59,9 +59,9 @@ public:
     Material();
     ~Material();
 
-    bool init(float ambient = 0.3, float reflectivity = 1.0, float shine_damper = 8.0,
+    bool init(Shader* shader, float ambient = 0.3, float reflectivity = 1.0, float shine_damper = 8.0,
               const glm::vec4& color = glm::vec4(1.0));
-    void populate(Shader* shader);
+    void populate();
 
     void set_texture(Texture* texture);
 
@@ -71,9 +71,11 @@ public:
     void set_reflectivity(float reflectivity) { m_reflectivity = reflectivity; }
 
     Texture* texture() const { return m_texture; }
+    Shader* shader() const { return m_shader; }
 
 private:
     Texture* m_texture;
+    Shader* m_shader;
     glm::vec4 m_color;
     float m_shine_damper;
 	float m_ambient;

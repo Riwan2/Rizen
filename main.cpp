@@ -12,9 +12,10 @@ Square fbuffer_square;
 Square square;
 
 CameraTPS camera_tps;
-Material material;
+Material material, material2;
 Mesh mesh;
-Model model;
+Model model, model2;
+std::vector<Entity*> entities;
 
 void init()
 {
@@ -42,17 +43,52 @@ void init()
 
     // camera
     camera_tps.init(Input::display_size());
+    camera_tps.set_distance(30);
+    camera_tps.set_angle_y(0);
+    camera_tps.move_target(glm::vec3(0, 8, 0));
+
     basic_shader.init("basic.vr", "basic.fa");
     mesh.init("cube.obj");
     
-    material.init();
+    material.init(&basic_shader);
     material.set_color(glm::vec4(1.0, 0.0, 0.0, 0.0));
-    material.set_ambient(0.4);
+    material.set_ambient(0.7);
     material.set_reflectivity(1.0);
     material.set_shine_damper(4);
     material.set_texture(&texture);
 
+    material2.init(&basic_shader);
+    material2.set_color(glm::vec4(0, 0, 1, 0));
+    material2.set_ambient(1.0);
+
     model.init(&mesh, &material);
+    model2.init(&mesh, &material2);
+
+    for (int i = 0; i < 100; i++) {
+        Entity* entity = new Entity();
+        entity->init(&model);
+        entity->set_scale(glm::vec3(0.5));
+
+        int x = i % 10;
+        int y = i / 10;
+
+        entity->set_position(glm::vec3(x * 2 - 10, y * 2, 0));
+        entity->update();
+        entities.push_back(entity);
+    }
+
+    for (int i = 0; i < 10000; i++) {
+        Entity* entity = new Entity();
+        entity->init(&model2);
+        entity->set_scale(glm::vec3(0.2));
+
+        int x = i % 10;
+        int y = i / 10;
+
+        entity->set_position(glm::vec3(x * 2 - 10, y * 2, 3));
+        entity->update();
+        entities.push_back(entity);
+    }
 }
 
 /*
@@ -67,15 +103,19 @@ void update(App* app)
     }
     
     // update camera
-    camera_tps.move_angle_around(0.5);
+    //camera_tps.move_angle_around(0.5);
     camera_tps.update();
+
+    // entity update
+    //entity.move_rotation(glm::vec3(0.3, 0.35, 0.15));
+    //entity.update();
 
     // render 3D objects
     frame_buffer.bind();
     app->clear(glm::vec4(0.1));    
     app->renderer()->begin(&camera_tps, &basic_shader);
 
-    app->renderer()->render(&model);
+    app->renderer()->render(entities, &camera_tps);
 
     app->renderer()->end();
     frame_buffer.unbind();

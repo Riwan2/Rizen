@@ -13,13 +13,63 @@ void Transform::update()
 }
 
 /*
+    Component manager
+*/
+
+ComponentManager::ComponentManager() {}
+ComponentManager::~ComponentManager() 
+{
+    for (auto component : m_components)
+        delete component;
+}
+
+void ComponentManager::init(Entity* entity) 
+{
+    m_entity = entity;
+}
+
+void ComponentManager::update()
+{
+    for (auto component : m_components)
+        component->update();
+}
+
+/*
     Entity
 */
 
 Entity::Entity() {}
-Entity::~Entity() {}
-
-void Entity::init()
+Entity::~Entity() 
 {
-    
+    delete m_components;
+}
+
+void Entity::init(Model* model)
+{
+    m_model = model;
+    m_components = new ComponentManager();
+    m_components->init(this);
+}
+
+void Entity::update()
+{
+    m_transform.update();
+    m_components->update();
+}
+
+void Entity::set_rotation(const glm::vec3& rotation)
+{
+    m_transform.rotation.x = glm::radians(fmod(rotation.x, 360));
+    m_transform.rotation.y = glm::radians(fmod(rotation.y, 360));
+    m_transform.rotation.z = glm::radians(fmod(rotation.z, 360));
+	m_transform.quat = glm::quat(m_transform.rotation);
+}
+
+
+void Entity::move_rotation(const glm::vec3& rotation)
+{
+    m_transform.rotation.x += glm::radians(fmod(rotation.x, 360));
+    m_transform.rotation.y += glm::radians(fmod(rotation.y, 360));
+    m_transform.rotation.z += glm::radians(fmod(rotation.z, 360));
+	m_transform.quat = glm::quat(m_transform.rotation);
 }

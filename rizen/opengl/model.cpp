@@ -7,8 +7,9 @@
 Material::Material() {}
 Material::~Material() {}
 
-bool Material::init(float ambient, float reflectivity, float shine_damper, const glm::vec4& color) 
+bool Material::init(Shader* shader, float ambient, float reflectivity, float shine_damper, const glm::vec4& color) 
 {
+	m_shader = shader;
 	m_color = color;
 	m_ambient = ambient;
 	m_reflectivity = reflectivity;
@@ -21,14 +22,14 @@ void Material::set_texture(Texture* texture)
 	m_texture = texture;
 }
 
-void Material::populate(Shader* shader)
+void Material::populate()
 {
 	if (m_texture != nullptr)
-		shader->set_bool("textured", true);
-	shader->set_vec4("color", m_color);
-	shader->set_float("ambient", m_ambient);
-	shader->set_float("reflectivity", m_reflectivity);
-	shader->set_float("shine_damper", m_shine_damper);
+		m_shader->set_bool("textured", true);
+	m_shader->set_vec4("color", m_color);
+	m_shader->set_float("ambient", m_ambient);
+	m_shader->set_float("reflectivity", m_reflectivity);
+	m_shader->set_float("shine_damper", m_shine_damper);
 }
 
 /*

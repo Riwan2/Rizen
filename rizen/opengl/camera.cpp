@@ -53,7 +53,7 @@ void CameraTPS::init(const glm::vec2& display_size)
     m_angle_around = 90.0f;
 	m_angle_y = -20.0f;
 	m_roll = 0.0f;
-	m_distance = 10.0;
+	m_distance = 6.0;
     Camera::init(display_size);
 }
 
