@@ -11,7 +11,7 @@ FrameBuffer frame_buffer;
 Square fbuffer_square;
 Square square;
 
-Camera camera;
+CameraTPS camera_tps;
 Material material;
 Mesh mesh;
 Model model;
@@ -41,7 +41,7 @@ void init()
     */
 
     // camera
-    camera.init(Input::display_size());
+    camera_tps.init(Input::display_size());
     basic_shader.init("basic.vr", "basic.fa");
     mesh.init("cube.obj");
     
@@ -67,12 +67,13 @@ void update(App* app)
     }
     
     // update camera
-    camera.update();
+    camera_tps.move_angle_around(0.5);
+    camera_tps.update();
 
-    // render quads
+    // render 3D objects
     frame_buffer.bind();
     app->clear(glm::vec4(0.1));    
-    app->renderer()->begin(&camera, &basic_shader);
+    app->renderer()->begin(&camera_tps, &basic_shader);
 
     app->renderer()->render(&model);
 

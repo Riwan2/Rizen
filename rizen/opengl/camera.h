@@ -15,8 +15,8 @@ public:
     Camera();
     ~Camera();
 
-    bool init(const glm::vec2& size);
-    void update();
+    virtual void init(const glm::vec2& size);
+    virtual void update();
     void update_view();
     void resize(const glm::vec2& size);
 
@@ -31,7 +31,7 @@ public:
     const glm::vec3& target() const { return m_target; }
     const glm::vec3& position() const { return m_pos; }
 
-private:
+protected:
     glm::vec3 m_pos;
     glm::vec3 m_target;
     glm::quat m_orientation;
@@ -40,5 +40,41 @@ private:
     glm::mat4 m_projection;
     glm::mat4 m_projection_view;
 };
+
+/*
+    TPS Camera
+*/
+
+class CameraTPS : public Camera {
+public:
+	CameraTPS();
+	~CameraTPS();
+
+    void init(const glm::vec2& display_size) override;
+	void update() override;
+
+	// roll, angle_y and angle_around set in degree
+    void set_distance(float distance) { m_distance = distance; }
+	void set_roll(float roll) { m_roll = fmod(roll, 360.0f); }
+	void set_angle_y(float angle) { m_angle_y = fmod(-angle, 360.0f); }
+	void set_angle_around(float angle) { m_angle_around = fmod(angle, 360.0f); }
+
+    void move_distance(float distance) { m_distance += distance; }
+	void move_roll(float roll) { m_roll = fmod(m_roll + roll, 360.0f); }
+	void move_angle_y(float angle) { m_angle_y = fmod(m_angle_y - angle, 360.0f); }
+	void move_angle_around(float angle) { m_angle_around = fmod(m_angle_around - angle, 360.0f); }
+
+	const float roll() const { return m_roll; }
+	const float angle_y() const { return m_angle_y; }
+    const float distance() const { return m_distance; }
+	const float angle_around() const { return m_angle_around; }
+
+private:
+	float m_angle_around;
+	float m_angle_y;
+	float m_roll;
+    float m_distance;
+};
+
 
 #endif //CAMERA_H

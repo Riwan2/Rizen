@@ -34,6 +34,7 @@ public:
 
 private:
     Transform m_transform;
+    Model* m_model;
 };
 
 #endif //ENTITY_H

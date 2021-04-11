@@ -23,10 +23,8 @@ void Material::set_texture(Texture* texture)
 
 void Material::populate(Shader* shader)
 {
-	if (m_texture != nullptr) {
-		m_texture->bind();
+	if (m_texture != nullptr)
 		shader->set_bool("textured", true);
-	}
 	shader->set_vec4("color", m_color);
 	shader->set_float("ambient", m_ambient);
 	shader->set_float("reflectivity", m_reflectivity);

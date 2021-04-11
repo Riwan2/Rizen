@@ -70,6 +70,8 @@ public:
     void set_shine_damper(float shine_damper) { m_shine_damper = shine_damper; }
     void set_reflectivity(float reflectivity) { m_reflectivity = reflectivity; }
 
+    Texture* texture() const { return m_texture; }
+
 private:
     Texture* m_texture;
     glm::vec4 m_color;
