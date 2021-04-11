@@ -18,10 +18,11 @@ void Renderer::begin(Camera* camera, Shader* shader)
     m_shader->set_mat4("projection_view", camera->projection_view());
 }
 
-void Renderer::render_mesh(Mesh* mesh)
+void Renderer::render(Model* model)
 {
     m_shader->set_mat4("model", glm::mat4(1.0));
-    mesh->render();
+    model->material()->populate(m_shader);
+    model->mesh()->render();
 }
 
 void Renderer::end()

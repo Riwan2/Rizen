@@ -12,7 +12,9 @@ Square fbuffer_square;
 Square square;
 
 Camera camera;
+Material material;
 Mesh mesh;
+Model model;
 
 void init()
 {
@@ -42,6 +44,15 @@ void init()
     camera.init(Input::display_size());
     basic_shader.init("basic.vr", "basic.fa");
     mesh.init("cube.obj");
+    
+    material.init();
+    material.set_color(glm::vec4(1.0, 0.0, 0.0, 0.0));
+    material.set_ambient(0.4);
+    material.set_reflectivity(1.0);
+    material.set_shine_damper(4);
+    material.set_texture(&texture);
+
+    model.init(&mesh, &material);
 }
 
 /*
@@ -63,7 +74,7 @@ void update(App* app)
     app->clear(glm::vec4(0.1));    
     app->renderer()->begin(&camera, &basic_shader);
 
-    app->renderer()->render_mesh(&mesh);
+    app->renderer()->render(&model);
 
     app->renderer()->end();
     frame_buffer.unbind();

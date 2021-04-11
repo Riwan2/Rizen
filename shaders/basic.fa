@@ -1,65 +1,66 @@
 #version 330 core
 
 uniform sampler2D aTexture;
-out vec4 FragColor;
+out vec4 frag_color;
 
-in vec3 FragPos;
-in vec3 Normal;
-in vec2 TexCoord;
+in vec3 frag_pos;
+in vec3 normal;
+in vec2 tex_coord;
 
-uniform vec3 viewPos;
+uniform vec3 view_pos;
 
-uniform float ambient;
-uniform float reflectivity;
-uniform float shineDamper;
+uniform bool textured = false;
+uniform float ambient = 0.1;
+uniform float reflectivity = 0.2;
+uniform float shine_damper = 1.0;
+uniform vec4 color = vec4(1.0);
 
-uniform vec3 lightPos;
-const vec3 lightColor = vec3(1.0, 1.0, 1.0);
-
-const vec3 color = vec3(1.0, 1.0, 1.0);
+uniform vec3 light_pos = vec3(0.0, 1.0, 0.0);
+const vec3 light_color = vec3(1.0, 0.0, 1.0);
 
 const float near = 0.1;
 const float far = 100.0;
 
-float calculateDepth()
+float calculate_depth()
 {
 	float z = gl_FragCoord.z * 2.0 - 1.0; // back to NDC 
     return (2.0 * near * far) / (far + near - z * (far - near)) / far;
 }
 
-vec3 calculateAmbient()
+vec3 calculate_ambient()
 {
-	return ambient * lightColor;
+	return ambient * light_color;
 }
 
-vec3 calculateDiffuse(vec3 norm, vec3 lightDir)
+vec3 calculate_diffuse(vec3 norm, vec3 light_dir)
 {
-	float diffuse = max(dot(norm, lightDir), 0.0);
-	return diffuse * lightColor;
+	float diffuse = max(dot(norm, light_dir), 0.0);
+	return diffuse * light_color;
 }
 
-vec3 calculateSpecular(vec3 norm, vec3 lightDir)
+vec3 calculate_specular(vec3 norm, vec3 light_dir)
 {
-	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(0.0, dot(viewDir, reflectDir)), shineDamper);
-	return reflectivity * spec * lightColor;
+	vec3 view_dir = normalize(view_pos - frag_pos);
+	vec3 reflect_dir = reflect(-light_dir, norm);
+	float spec = pow(max(0.0, dot(view_dir, reflect_dir)), shine_damper);
+	return reflectivity * spec * light_color;
 }
 
 void main()
 {
-//	vec3 norm = normalize(Normal);
-//	vec3 lightDir = normalize(lightPos - FragPos);
+	vec3 norm = normalize(normal);
+	vec3 light_dir = normalize(light_pos - frag_pos);
 
-//	vec3 ambient_lighting = calculateAmbient();
-//	vec3 diffuse = calculateDiffuse(norm, lightDir);
-//	vec3 specular = calculateSpecular(norm, lightDir);
+	vec3 ambient_lighting = calculate_ambient();
+	vec3 diffuse = calculate_diffuse(norm, light_dir);
+	vec3 specular = calculate_specular(norm, light_dir);
 	
-//	vec3 result = (ambient_lighting + diffuse + specular) * color;
-	//
-//	FragColor = vec4(result, 1.0);
-//	FragColor = texture(aTexture, TexCoord) * vec4(result, 1.0);
-	FragColor = vec4(1.0);
+	vec4 result = vec4(ambient_lighting + diffuse + specular, 1.0) * color;
+	if (textured)
+		frag_color = texture(aTexture, tex_coord) * result;
+	else
+		frag_color = result;
+	// frag_color = vec4(1.0);
 
 	//float depth = calculateDepth();
 	//FragColor = vec4(vec3(depth), 1.0);

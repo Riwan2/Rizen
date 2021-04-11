@@ -31,11 +31,6 @@ public:
 
 	GLuint texture_id() { return m_texture_id; }
 
-	//void set_lighting(float ambient = 0.3, float reflectivity = 1.0, float shine_damper = 8);
-	//float shine_damper() { return m_shine_damper; }
-	//float ambient() { return m_ambient; }
-	//float reflectivity() { return m_reflectivity; }
-
 private:
 	GLuint m_texture_id;
 	unsigned char* m_data;
@@ -43,10 +38,6 @@ private:
 	int m_width;
 	int m_height;
 	int m_nr_channels;
-	
-	//float m_shine_damper;
-	//float m_ambient;
-	//float m_reflectivity;
 
 	bool init(const std::string& filename, GLint internal_format);
 	void setup_texture(GLint internal_format);

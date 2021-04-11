@@ -80,13 +80,6 @@ void Texture::resize(const glm::vec2& size)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-// void Texture::set_lighting(float ambient, float reflectivity, float shineDamper)
-// {
-// 	m_ambient = ambient;
-// 	m_reflectivity = reflectivity;
-// 	m_shineDamper = shineDamper;
-// }
-
 /*
 	FrameBuffer
 */

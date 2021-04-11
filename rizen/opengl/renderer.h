@@ -2,7 +2,6 @@
 #define RENDERER_H
 
 #include "../entity/entity.h"
-#include "shader.h"
 #include "camera.h"
 
 class Renderer {
@@ -13,7 +12,7 @@ public:
     bool init();
     void render();
     void begin(Camera* camera, Shader* shader);
-    void render_mesh(Mesh* mesh);
+    void render(Model* model);
     void end();
 
 private:

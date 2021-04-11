@@ -1,6 +1,53 @@
 #include "model.h"
 
 /*
+	Material
+*/
+
+Material::Material() {}
+Material::~Material() {}
+
+bool Material::init(float ambient, float reflectivity, float shine_damper, const glm::vec4& color) 
+{
+	m_color = color;
+	m_ambient = ambient;
+	m_reflectivity = reflectivity;
+	m_shine_damper = shine_damper;
+	return true;
+}
+
+void Material::set_texture(Texture* texture)
+{
+	m_texture = texture;
+}
+
+void Material::populate(Shader* shader)
+{
+	if (m_texture != nullptr) {
+		m_texture->bind();
+		shader->set_bool("textured", true);
+	}
+	shader->set_vec4("color", m_color);
+	shader->set_float("ambient", m_ambient);
+	shader->set_float("reflectivity", m_reflectivity);
+	shader->set_float("shine_damper", m_shine_damper);
+}
+
+/*
+	Model
+*/
+
+Model::Model() {}
+Model::~Model() {}
+
+bool Model::init(Mesh* mesh, Material* material) 
+{
+	m_mesh = mesh;
+	m_material = material;
+	return true;
+}
+
+/*
     Mesh
 */
 
