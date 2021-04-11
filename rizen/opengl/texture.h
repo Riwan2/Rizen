@@ -11,7 +11,7 @@
 	Texture
 */
 
-const std::string texture_path = "../textures/";
+const std::string TEXTURE_PATH = "../textures/";
 
 class Texture {
 public:

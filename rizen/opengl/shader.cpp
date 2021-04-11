@@ -69,7 +69,7 @@ bool Shader::load_vertex(const std::string& filename)
 	m_vertex = glCreateShader(GL_VERTEX_SHADER);
 	
 	std::string vertex_source;
-	if (!read_from_file(shader_path + filename, &vertex_source))
+	if (!read_from_file(SHADER_PATH + filename, &vertex_source))
         return false;
 	if (!compile_shader(vertex_source.c_str(), m_vertex, "vertex"))
         return false;
@@ -83,7 +83,7 @@ bool Shader::load_fragment(const std::string& filename)
 	m_fragment = glCreateShader(GL_FRAGMENT_SHADER);
 
 	std::string fragment_source;
-	if (!read_from_file(shader_path + filename, &fragment_source))
+	if (!read_from_file(SHADER_PATH + filename, &fragment_source))
         return false;
 	if (!compile_shader(fragment_source.c_str(), m_fragment, "fragment"))
         return false;

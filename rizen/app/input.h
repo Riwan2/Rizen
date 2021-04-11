@@ -7,7 +7,7 @@
 class Input {
 public:
     static void init(const glm::vec2& displaySize);
-    static void update();
+    static void update(SDL_Window* window);
 
     static bool key_down(SDL_KeyCode key);
     static bool key_pressed(SDL_KeyCode key);
@@ -27,6 +27,7 @@ private:
     static bool m_quit;
 
     static void process_event(SDL_Event* event);
+    static void window_event(SDL_Window* window);
 };
 
 #endif //INPUT_H

@@ -21,12 +21,12 @@ void Texture::bind(GLenum sampler)
 
 bool Texture::init_jpg(const std::string& filename)
 {
-    return init(texture_path + filename, GL_RGB);
+    return init(TEXTURE_PATH + filename, GL_RGB);
 }
 
 bool Texture::init_png(const std::string& filename)
 {
-	return init(texture_path + filename, GL_RGBA);
+	return init(TEXTURE_PATH + filename, GL_RGBA);
 }
 
 bool Texture::init(const std::string& filename, GLint internal_format)

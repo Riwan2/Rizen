@@ -161,7 +161,8 @@ void Renderer2D::begin(const glm::vec2& display_size, Shader* shader)
     m_shader = shader;
     m_shader->bind();
     m_shader->set_mat4("projection", m_projection);
-    m_shader->set_float("u_time", Time::time());
+    m_shader->set_float("u_time", Time::time() / 1000.0);;
+    m_shader->set_vec2("u_resolution", display_size);
 }
 
 void Renderer2D::render_square(const Square& square, Texture* texture) 

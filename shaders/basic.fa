@@ -1,0 +1,66 @@
+#version 330 core
+
+uniform sampler2D aTexture;
+out vec4 FragColor;
+
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoord;
+
+uniform vec3 viewPos;
+
+uniform float ambient;
+uniform float reflectivity;
+uniform float shineDamper;
+
+uniform vec3 lightPos;
+const vec3 lightColor = vec3(1.0, 1.0, 1.0);
+
+const vec3 color = vec3(1.0, 1.0, 1.0);
+
+const float near = 0.1;
+const float far = 100.0;
+
+float calculateDepth()
+{
+	float z = gl_FragCoord.z * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near)) / far;
+}
+
+vec3 calculateAmbient()
+{
+	return ambient * lightColor;
+}
+
+vec3 calculateDiffuse(vec3 norm, vec3 lightDir)
+{
+	float diffuse = max(dot(norm, lightDir), 0.0);
+	return diffuse * lightColor;
+}
+
+vec3 calculateSpecular(vec3 norm, vec3 lightDir)
+{
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 reflectDir = reflect(-lightDir, norm);
+	float spec = pow(max(0.0, dot(viewDir, reflectDir)), shineDamper);
+	return reflectivity * spec * lightColor;
+}
+
+void main()
+{
+//	vec3 norm = normalize(Normal);
+//	vec3 lightDir = normalize(lightPos - FragPos);
+
+//	vec3 ambient_lighting = calculateAmbient();
+//	vec3 diffuse = calculateDiffuse(norm, lightDir);
+//	vec3 specular = calculateSpecular(norm, lightDir);
+	
+//	vec3 result = (ambient_lighting + diffuse + specular) * color;
+	//
+//	FragColor = vec4(result, 1.0);
+//	FragColor = texture(aTexture, TexCoord) * vec4(result, 1.0);
+	FragColor = vec4(1.0);
+
+	//float depth = calculateDepth();
+	//FragColor = vec4(vec3(depth), 1.0);
+}

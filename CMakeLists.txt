@@ -34,6 +34,10 @@ set(RIZEN_SOURCE_FILES
     ../rizen/opengl/opengl_2d.cpp
     ../rizen/opengl/shader.cpp
     ../rizen/opengl/texture.cpp
+    ../rizen/opengl/camera.cpp
+    ../rizen/opengl/model.cpp
+    ../rizen/opengl/renderer.cpp
+    ../rizen/entity/entity.cpp
 )
 
 add_library(rizen STATIC ${RIZEN_SOURCE_FILES})

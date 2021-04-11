@@ -3,6 +3,7 @@
 App::App() {}
 App::~App() 
 {
+    delete m_renderer;
     delete m_renderer_2d;
     SDL_GL_DeleteContext(m_gl_context);
     SDL_DestroyWindow(m_window);
@@ -50,6 +51,10 @@ bool App::init(const AppInfo& info)
     m_renderer_2d = new Renderer2D();
     m_renderer_2d->init();
 
+    // init renderer
+    m_renderer = new Renderer();
+    m_renderer->init();
+
     // init time
     Time::init();
 
@@ -59,7 +64,7 @@ bool App::init(const AppInfo& info)
 void App::clear(const glm::vec4& color)
 {
     glClearColor(color.x, color.y, color.z, color.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void App::begin()
@@ -69,7 +74,8 @@ void App::begin()
     #endif
 
     Time::update();
-    Input::update();
+    Input::update(m_window);
+
     glViewport(0, 0, Input::display_size().x, Input::display_size().y);
 }
 

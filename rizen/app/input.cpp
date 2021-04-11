@@ -20,8 +20,10 @@ void Input::init(const glm::vec2& display_size)
     m_quit = false;
 }
 
-void Input::update()
+void Input::update(SDL_Window* window)
 {
+    window_event(window);
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         Input::process_event(&event);
@@ -32,6 +34,13 @@ void Input::update()
 
     m_mouse_scroll = glm::vec2(0, 0);
     m_last_mouse_scroll = glm::vec2(0, 0);
+}
+
+void Input::window_event(SDL_Window* window)
+{
+    int wflags = SDL_GetWindowFlags(window);
+    if (!(wflags & SDL_WINDOW_INPUT_FOCUS))
+        SDL_Delay(40);
 }
 
 void Input::process_event(SDL_Event* event) 

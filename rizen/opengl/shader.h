@@ -11,7 +11,7 @@
 
 #include "../utils/log.h"
 
-const std::string shader_path = "../shaders/";
+const std::string SHADER_PATH = "../shaders/";
 
 class Shader {
 public:
