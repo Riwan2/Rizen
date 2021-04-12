@@ -4,6 +4,8 @@
     Transform
 */
 
+glm::mat4 UNIT = glm::mat4(1.0);
+
 void Transform::update()
 {
     model = glm::mat4(1.0);

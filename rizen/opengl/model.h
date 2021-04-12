@@ -43,6 +43,9 @@ public:
     bool init(Vertex* vertices, int num_vertices, TriangleIndex* indices, int num_indices);
     bool init(const std::string& p_filename);
     void render();
+    void render_instanced(int num_entities);
+
+    const GLuint vao() const { return m_vao; }
     
 private:
     GLuint m_vao;
@@ -70,8 +73,11 @@ public:
     void set_shine_damper(float shine_damper) { m_shine_damper = shine_damper; }
     void set_reflectivity(float reflectivity) { m_reflectivity = reflectivity; }
 
+    const bool textured() { return (m_texture != nullptr); } 
     Texture* texture() const { return m_texture; }
     Shader* shader() const { return m_shader; }
+
+    const glm::vec4& color() const { return m_color; }
 
 private:
     Texture* m_texture;
@@ -91,14 +97,20 @@ public:
     Model();
     ~Model();
 
-    bool init(Mesh* mesh, Material* material);
+    void init(Mesh* mesh, Material* material);
+    void init_instanced(Mesh* mesh, Material* material);
 
     Mesh* mesh() const { return m_mesh; }
     Material* material() const { return m_material; }
 
+    const bool instanced() const { return m_instanced; }
+    const GLuint instanced_vbo() const { return m_inst_vbo; }
+
 private:
     Mesh* m_mesh;
     Material* m_material;
+    bool m_instanced;
+    GLuint m_inst_vbo;
 };
 
 #endif //MODEL_H

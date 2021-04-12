@@ -24,8 +24,11 @@ void Material::set_texture(Texture* texture)
 
 void Material::populate()
 {
-	if (m_texture != nullptr)
+	if (textured())
 		m_shader->set_bool("textured", true);
+	else
+		m_shader->set_bool("textured", false);
+
 	m_shader->set_vec4("color", m_color);
 	m_shader->set_float("ambient", m_ambient);
 	m_shader->set_float("reflectivity", m_reflectivity);
@@ -39,12 +42,43 @@ void Material::populate()
 Model::Model() {}
 Model::~Model() {}
 
-bool Model::init(Mesh* mesh, Material* material) 
+void Model::init(Mesh* mesh, Material* material) 
 {
+	m_instanced = false;
 	m_mesh = mesh;
 	m_material = material;
-	return true;
 }
+
+void Model::init_instanced(Mesh* mesh, Material* material)
+{
+	m_instanced = true;
+	m_mesh = mesh;
+	m_material = material;
+
+	glBindVertexArray(m_mesh->vao());
+
+    glGenBuffers(1, &m_inst_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_inst_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
+
+    std::size_t s_vec4 = sizeof(glm::vec4);    
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * s_vec4, (void*)0);
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * s_vec4, (void*)(1 * s_vec4));
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * s_vec4, (void*)(2 * s_vec4));
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * s_vec4, (void*)(3 * s_vec4));
+
+    glVertexAttribDivisor(3, 1);
+    glVertexAttribDivisor(4, 1);
+    glVertexAttribDivisor(5, 1);
+    glVertexAttribDivisor(6, 1);
+
+    glBindVertexArray(0);
+}
+
 
 /*
     Mesh
@@ -230,4 +264,11 @@ void Mesh::render()
     glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+void Mesh::render_instanced(int num_entities)
+{
+    glBindVertexArray(m_vao);
+    glDrawElementsInstanced(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_INT, 0, num_entities);
+    glBindVertexArray(0);
 }

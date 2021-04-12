@@ -4,7 +4,7 @@
     Init
 */
 
-Shader basic_shader2D, custom_shader2D, basic_shader;
+Shader basic_shader2D, custom_shader2D, basic_shader, basic_inst_shader;
 Texture texture;
 FrameBuffer frame_buffer;
 
@@ -48,6 +48,7 @@ void init(App* app)
     camera_tps.move_target(glm::vec3(0, 8, 0));
 
     basic_shader.init("basic.vr", "basic.fa");
+    basic_inst_shader.init("inst_basic.vr", "inst_basic.fa");
     mesh.init("cube.obj");
     
     material.init(&basic_shader);
@@ -61,7 +62,7 @@ void init(App* app)
 
     material2.init(&basic_shader);
     material2.set_color(glm::vec4(0, 0, 1, 0));
-    material2.set_ambient(1.0);
+    material2.set_ambient(0.5);
 
     app->renderer()->bind_ubo(&material2);
 
@@ -74,22 +75,22 @@ void init(App* app)
         entity->set_scale(glm::vec3(0.5));
 
         int x = i % 10;
-        int y = i / 10;
+        int y = i / 10; 
 
         entity->set_position(glm::vec3(x * 2 - 10, y * 2, 0));
         entity->update();
         entities.push_back(entity);
     }
 
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 1000; i++) {
         Entity* entity = new Entity();
         entity->init(&model2);
         entity->set_scale(glm::vec3(0.2));
 
-        int x = i % 10;
-        int y = i / 10;
+        float x = i % 10 + rand_float(-1, 1);
+        float y = i / 100.0;
 
-        entity->set_position(glm::vec3(x * 2 - 10, y * 2, 3));
+        entity->set_position(glm::vec3(x * 2 - 10, y, 3));
         entity->update();
         entities.push_back(entity);
     }
@@ -113,6 +114,11 @@ void update(App* app)
     // entity update
     //entity.move_rotation(glm::vec3(0.3, 0.35, 0.15));
     //entity.update();
+
+    for (auto entity : entities) {
+        entity->move_rotation(glm::vec3(0.3, 0.4, rand_float(0, 0.3)));
+        entity->update();
+    }
 
     // render 3D objects
     frame_buffer.bind();

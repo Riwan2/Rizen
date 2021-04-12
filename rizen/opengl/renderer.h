@@ -4,7 +4,7 @@
 #include "../entity/entity.h"
 #include "camera.h"
 
-#include <map>
+#include <unordered_map>
 
 /*
     Renderer
@@ -27,10 +27,12 @@ public:
 
 private:
     Shader* m_shader;
-    std::map<Material*, std::vector<Entity*>> m_render_map;
+    std::unordered_map<Model*, std::vector<Entity*>> m_render_map;
     GLuint m_ubo;
 
     void set_ubo();
+    void render(Model* model, const std::vector<Entity*> batch);
+    void render_instanced(Model* model, const std::vector<Entity*> batch);
 };
 
 #endif //RENDERER_H

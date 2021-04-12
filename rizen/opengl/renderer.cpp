@@ -47,32 +47,34 @@ void Renderer::begin(Camera* camera)
 void Renderer::render(const std::vector<Entity*>& entities) 
 {
     for (auto entity : entities) {
-        Material* material = entity->model()->material();
-        auto batch = m_render_map.find(material);
+        Model* model = entity->model();
+        auto batch = m_render_map.find(model);
 
         if (batch == m_render_map.end()) {
             std::vector<Entity*> new_batch;
             new_batch.push_back(entity);
-            m_render_map.emplace(material, new_batch);
+            m_render_map.emplace(model, new_batch);
         } else {
             batch->second.push_back(entity);
         }
     }
 
-    for (const auto& batch : m_render_map) {
-        Material* material = batch.first;
+    for (const auto& render_batch : m_render_map) {
+        auto batch = render_batch.second;
+        Model* model = render_batch.first;
+        Material* material = model->material();
         Shader* shader = material->shader();
 
         shader->bind();
         material->populate();
 
-        if (material->texture() != nullptr)
+        if (material->textured())
             material->texture()->bind();
 
-        for (const auto& entity : batch.second) {
-            shader->set_mat4("model", entity->transform().model);
-            entity->model()->mesh()->render();
-        }
+        if (model->instanced())
+            render_instanced(model, batch);
+        else
+            render(model, batch);
     }
 }
 
@@ -80,4 +82,26 @@ void Renderer::end()
 {
     m_render_map.clear();
     glDisable(GL_DEPTH_TEST);
+}
+
+void Renderer::render(Model* model, const std::vector<Entity*> batch)
+{
+    for (const auto& entity : batch) {
+        model->material()->shader()->set_mat4("model", entity->transform().model);
+        model->mesh()->render();
+    }
+}
+
+void Renderer::render_instanced(Model* model, const std::vector<Entity*> batch)
+{
+    int num_entities = batch.size();
+    glm::mat4* models = new glm::mat4[num_entities];
+    for (int i = 0; i < num_entities; i++)
+        models[i] = batch[i]->transform().model;
+
+    glBindBuffer(GL_ARRAY_BUFFER, model->instanced_vbo());
+    glBufferData(GL_ARRAY_BUFFER, num_entities * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, num_entities * sizeof(glm::mat4), models);
+
+    model->mesh()->render_instanced(num_entities);
 }
