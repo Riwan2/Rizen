@@ -39,10 +39,6 @@ private:
     Entity* m_entity;
 };
 
-class BasicComponent : public Component {
-    void update() override {}
-};
-
 /*
     Component Manager
 */
@@ -124,6 +120,7 @@ public:
 
     void init(Model* model);
     void update();
+    void update_transform() { m_transform.update(); }
 
     const Transform& transform() const { return m_transform; }
     Model* model() const { return m_model; }

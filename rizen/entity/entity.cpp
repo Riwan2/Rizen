@@ -55,7 +55,6 @@ void Entity::init(Model* model)
 
 void Entity::update()
 {
-    m_transform.update();
     m_components->update();
 }
 

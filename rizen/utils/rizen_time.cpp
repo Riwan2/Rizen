@@ -9,6 +9,7 @@ std::chrono::steady_clock::time_point Time::m_time_current;
 double Time::m_elapsed = 0;
 double Time::m_last_elapsed = 0;
 double Time::m_delta = 0;
+double Time::m_game_delta = 0;
 
 void Time::init() 
 {
@@ -23,6 +24,7 @@ void Time::update()
     m_last_elapsed = m_elapsed;
     m_elapsed = elapsed_time.count();
     m_delta = m_elapsed - m_last_elapsed;
+    m_game_delta = m_delta / 1000.0 * 60.0;
 }
 
 const char* Time::str_time() 

@@ -28,7 +28,7 @@ public:
     
     Renderer* renderer() const { return m_renderer; }
     Renderer2D* renderer_2d() const { return m_renderer_2d; }
-
+    
     bool on_quit() {
         return Input::on_quit() || Input::key_pressed(SDLK_ESCAPE);
     }

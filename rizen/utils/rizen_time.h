@@ -14,7 +14,10 @@ public:
     static void init();
     static void update();
     static double time() { return m_elapsed; }
+    // return delta in milliseconds
     static double delta() { return m_delta; }
+    // use this for coherent movements beetween frames
+    static double game_delta() { return m_game_delta; }
     static const char* str_time();
 
 private:
@@ -23,6 +26,7 @@ private:
     static double m_elapsed;
     static double m_last_elapsed;
     static double m_delta;
+    static double m_game_delta;
 };
 
 /*

@@ -58,6 +58,9 @@ bool App::init(const AppInfo& info)
     // init time
     Time::init();
 
+    // vsync
+    SDL_GL_SetSwapInterval(-1);
+
     return true;
 }
 

@@ -8,6 +8,7 @@ glm::vec2 Input::m_last_mouse_scroll;
 glm::vec2 Input::m_display_size;
 
 bool Input::m_quit;
+bool Input::m_resized;
 
 void Input::init(const glm::vec2& display_size)
 {
@@ -18,12 +19,14 @@ void Input::init(const glm::vec2& display_size)
     m_last_mouse_scroll = glm::vec2(0, 0);
     m_display_size = display_size;
     m_quit = false;
+    m_resized = false;
 }
 
 void Input::update(SDL_Window* window)
 {
     window_event(window);
 
+    m_resized = false;
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         Input::process_event(&event);
@@ -59,6 +62,7 @@ void Input::process_event(SDL_Event* event)
             if (event->window.event == SDL_WINDOWEVENT_RESIZED) {
                 m_display_size.x = event->window.data1;
                 m_display_size.y = event->window.data2;
+                m_resized = true;
             }
             break;
         
