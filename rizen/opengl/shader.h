@@ -29,6 +29,8 @@ public:
 	void set_int(const std::string& name, int value);
 	void set_float(const std::string& name, float value);
 
+    const GLuint program_id() const { return m_program; }
+
 private:
     GLuint m_program;
     GLuint m_vertex;

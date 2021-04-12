@@ -17,7 +17,7 @@ Mesh mesh;
 Model model, model2;
 std::vector<Entity*> entities;
 
-void init()
+void init(App* app)
 {
     basic_shader2D.init("2d/basic.vr", "2d/basic.fa");
     custom_shader2D.init("2d/basic.vr", "2d/custom.fa");
@@ -57,9 +57,13 @@ void init()
     material.set_shine_damper(4);
     material.set_texture(&texture);
 
+    app->renderer()->bind_ubo(&material);
+
     material2.init(&basic_shader);
     material2.set_color(glm::vec4(0, 0, 1, 0));
     material2.set_ambient(1.0);
+
+    app->renderer()->bind_ubo(&material2);
 
     model.init(&mesh, &material);
     model2.init(&mesh, &material2);
@@ -98,7 +102,7 @@ void init()
 void update(App* app)
 {
     if (Input::key_pressed(SDLK_RETURN)) {
-        init();
+        init(app);
         return;
     }
     
@@ -113,9 +117,9 @@ void update(App* app)
     // render 3D objects
     frame_buffer.bind();
     app->clear(glm::vec4(0.1));    
-    app->renderer()->begin(&camera_tps, &basic_shader);
+    app->renderer()->begin(&camera_tps);
 
-    app->renderer()->render(entities, &camera_tps);
+    app->renderer()->render(entities);
 
     app->renderer()->end();
     frame_buffer.unbind();
@@ -134,7 +138,7 @@ int main()
     info.size_y = 620;
     app->init(info);
 
-    init();
+    init(app);
 
     while(!app->on_quit()) {
         app->begin();
@@ -142,6 +146,9 @@ int main()
         update(app);
         app->end();
     }
+
+    for (auto entity : entities)
+        delete entity;
 
     delete app;
     return 0;

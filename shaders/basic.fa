@@ -3,9 +3,11 @@
 uniform sampler2D aTexture;
 out vec4 frag_color;
 
-in vec3 frag_pos;
-in vec3 normal;
-in vec2 tex_coord;
+in VS_OUT {
+	vec3 frag_pos;
+	vec3 normal;
+	vec2 tex_coord;
+} fs_in;
 
 uniform vec3 view_pos;
 
@@ -40,7 +42,7 @@ vec3 calculate_diffuse(vec3 norm, vec3 light_dir)
 
 vec3 calculate_specular(vec3 norm, vec3 light_dir)
 {
-	vec3 view_dir = normalize(view_pos - frag_pos);
+	vec3 view_dir = normalize(view_pos - fs_in.frag_pos);
 	vec3 reflect_dir = reflect(-light_dir, norm);
 	float spec = pow(max(0.0, dot(view_dir, reflect_dir)), shine_damper);
 	return reflectivity * spec * light_color;
@@ -48,8 +50,8 @@ vec3 calculate_specular(vec3 norm, vec3 light_dir)
 
 void main()
 {
-	vec3 norm = normalize(normal);
-	vec3 light_dir = normalize(light_pos - frag_pos);
+	vec3 norm = normalize(fs_in.normal);
+	vec3 light_dir = normalize(light_pos - fs_in.frag_pos);
 
 	vec3 ambient_lighting = calculate_ambient();
 	vec3 diffuse = calculate_diffuse(norm, light_dir);
@@ -57,7 +59,7 @@ void main()
 	
 	vec4 result = vec4(ambient_lighting + diffuse + specular, 1.0) * color;
 	if (textured)
-		frag_color = texture(aTexture, tex_coord) * result;
+		frag_color = texture(aTexture, fs_in.tex_coord) * result;
 	else
 		frag_color = result;
 	// frag_color = vec4(1.0);
