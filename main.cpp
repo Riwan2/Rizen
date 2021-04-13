@@ -1,5 +1,6 @@
 //#include "zgame/gcomponent.h"
 #include "rizen/rizen.h"
+#include "zgame/zgame.h"
 
 /*
     Init
@@ -21,8 +22,67 @@ Mesh cube;
 Material material, material2;
 Model model, model2;
 
+class ASystem : public System {
+public:
+    void update() {
+        for (auto entity : m_entities) {
+            auto t = Coordinator::get_component<Transform>(entity);
+        }  
+    }
+};
+
+class BSystem : public System {
+public:
+    void update() {
+        for (auto entity : m_entities) {
+            auto t = Coordinator::get_component<Transform>(entity);
+        }  
+    }
+};
+
+
+// System
+RenderSystem* render_system;
+ASystem* a_system;
+BSystem* b_system;
+
 void init(App* app)
 {
+    /*
+        Init Component
+    */
+
+    Coordinator::register_component<Transform>();
+    Coordinator::register_component<Renderable>();
+
+    /*
+        Init System
+    */
+
+    render_system = Coordinator::register_system<RenderSystem>();
+    {
+        Signature signature;
+        signature.set(Coordinator::get_component_type<Transform>());
+        signature.set(Coordinator::get_component_type<Renderable>());
+        Coordinator::set_system_signature<RenderSystem>(signature);
+        render_system->init();
+    }
+
+    a_system = Coordinator::register_system<ASystem>();
+    {
+        Signature signature;
+        signature.set(Coordinator::get_component_type<Transform>());
+        Coordinator::set_system_signature<ASystem>(signature);   
+    }
+
+    b_system = Coordinator::register_system<BSystem>();
+    {
+        Signature signature;
+        signature.set(Coordinator::get_component_type<Transform>());
+        Coordinator::set_system_signature<BSystem>(signature);   
+    }
+
+
     // Frame buffer
     glm::vec2 d_size = Input::display_size();
     frame_buffer.init(d_size);
@@ -66,41 +126,55 @@ void init(App* app)
     model.init(&cube, &material);
     model2.init_instanced(&cube, &material2);
 
-    // Entity
-    // Entity* john = new Entity();
-    // john->init(&model);
-    // john->set_scale(glm::vec3(2));
-    // john->set_position(glm::vec3(0, 0, 5));
-    // john->update_transform();
-    // //john->components()->add<MoveComponent>(new MoveComponent(&camera_tps));
-    // entities.push_back(john);
+    /*
+        Entity
+    */
 
-    // for (int i = 0; i < 100; i++) {
-    //     Entity* entity = new Entity();
-    //     entity->init(&model);
-    //     entity->set_scale(glm::vec3(0.5));
+   Entity player = Coordinator::create_entity();
+   {
+       Coordinator::add_component<Transform>(player, Transform());
+       Coordinator::add_component<Renderable>(player, Renderable(&model));
+       
+       auto transform = Coordinator::get_component<Transform>(player);
+       transform->set_position(glm::vec3(0, 0, 5));
+       transform->set_scale(glm::vec3(2));
+       transform->update();
+   }
 
-    //     int x = i % 10;
-    //     int y = i / 10;
+    for (int i = 0; i < 100; i++) {
+        Entity entity = Coordinator::create_entity();
+        {
+            Coordinator::add_component<Transform>(entity, Transform());
+            Coordinator::add_component<Renderable>(entity, Renderable(&model));
 
-    //     entity->set_position(glm::vec3(x * 2 - 10, y * 2, 0));
-    //     entity->update_transform();
-    //     entities.push_back(entity);
-    //}
+            auto transform = Coordinator::get_component<Transform>(entity);
+            transform->set_scale(glm::vec3(0.5));
 
-    // for (int i = 0; i < 10000; i++) {
-    //     Entity* entity = new Entity();
-    //     entity->init(&model2);
-    //     entity->set_scale(glm::vec3(0.2));
+            int x = i % 10;
+            int y = i / 10;
 
-    //     float x = i % 10 + rand_float(-1, 1);
-    //     float y = i / 600.0;
-    //     float z = rand_float(-7, 7);
+            transform->set_position(glm::vec3(x * 2 - 10, y * 2, 0));
+            transform->update();
+        }
+    }
 
-    //     entity->set_position(glm::vec3(x * 2 - 10, y, z + 3));
-    //     entity->update_transform();
-    //     entities.push_back(entity);
-    // }
+    for (int i = 0; i < 5000; i++) {
+        Entity entity = Coordinator::create_entity();
+        {
+            Coordinator::add_component<Transform>(entity, Transform());
+            Coordinator::add_component<Renderable>(entity, Renderable(&model2));
+
+            auto transform = Coordinator::get_component<Transform>(entity);
+            transform->set_scale(glm::vec3(0.2));
+
+            float x = i % 10 + rand_float(-1, 1);
+            float y = i / 600.0;
+            float z = rand_float(-7, 7);
+
+            transform->set_position(glm::vec3(x * 2 - 10, y, z + 3));
+            transform->update();
+        }
+    }
 }
 
 /*
@@ -123,7 +197,7 @@ void update(App* app)
     }
     
     // update camera
-    //camera_tps.move_angle_around(0.5 * Time::game_delta());
+    camera_tps.move_angle_around(0.5 * Time::game_delta());
     //camera_tps.set_angle_around();
     camera_tps.update();
 
@@ -138,6 +212,11 @@ void update(App* app)
     // app->renderer()->begin(&camera_tps);
     // app->renderer()->render(entities);
     // app->renderer()->end();
+
+    render_system->render(&camera_tps);
+    a_system->update();
+    b_system->update();
+
     frame_buffer.unbind();
     
     // render frame buffer

@@ -7,9 +7,11 @@
 #include <unordered_map>
 #include <set>
 
-// 2 ^ 16 Entities
-typedef uint16_t Entity;
-const Entity MAX_ENTITIES = 4;
+#include "../utils/log.h"
+
+// 2 ^ 32 Entities
+typedef uint32_t Entity;
+const Entity MAX_ENTITIES = 100000;
 
 // 2 ¨ 8 Components
 typedef uint8_t ComponentType;

@@ -40,9 +40,8 @@ void ComponentArray<T>::remove_component(Entity entity)
 template <class T>
 T* ComponentArray<T>::get_component(Entity entity)
 {
-    if (m_entity_to_index.find(entity) == m_entity_to_index.end()) { std::cout << "getting non existant component\n"; abort(); }
+    //if (m_entity_to_index.find(entity) == m_entity_to_index.end()) { std::cout << "getting non existant component\n"; abort(); }
     int index = m_entity_to_index[entity];
-    std::cout << "index: " << index << " | size: " << m_entity_to_index.size() << ", " << m_index_to_entity.size() << "\n";
     return &m_components[index];
 }
 
@@ -99,7 +98,7 @@ template <class T>
 ComponentArray<T>* ComponentManager::get_component_array()
 {
     const char* name = typeid(T).name();
-    if (m_component_arrays.find(name) == m_component_arrays.end()) { std::cout << "component not registered\n"; abort(); }
+    //if (m_component_arrays.find(name) == m_component_arrays.end()) { std::cout << "component not registered\n"; abort(); }
     return (ComponentArray<T>*)m_component_arrays[name];
 }
 

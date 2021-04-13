@@ -21,6 +21,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMAKE")
 set(SOURCE_FILES 
     main.cpp
     zgame/gcomponent.cpp
+    zgame/system/render_system.cpp
 )
 
 message("")
