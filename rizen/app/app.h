@@ -3,7 +3,8 @@
 
 #include "input.h"
 #include "../opengl/opengl_2d.h"
-#include "../opengl/renderer.h"
+//#include "../opengl/renderer.h"
+#include "../entity/ecs.h"
 
 //#define APP_DEBUG
 
@@ -13,7 +14,7 @@ struct AppInfo {
     int pos_y = SDL_WINDOWPOS_CENTERED;
     int size_x = 400;
     int size_y = 400;
-    int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+    int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_INIT_JOYSTICK;
 };
 
 class App {
@@ -26,7 +27,7 @@ public:
     void begin();
     void end();
     
-    Renderer* renderer() const { return m_renderer; }
+    //Renderer* renderer() const { return m_renderer; }
     Renderer2D* renderer_2d() const { return m_renderer_2d; }
     
     bool on_quit() {
@@ -37,7 +38,7 @@ private:
     SDL_Window* m_window;
     SDL_GLContext m_gl_context;
     Renderer2D* m_renderer_2d;
-    Renderer* m_renderer;
+    //Renderer* m_renderer;
 };
 
 #endif //APP_H

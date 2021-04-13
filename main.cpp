@@ -1,4 +1,5 @@
-#include "zgame/gcomponent.h"
+//#include "zgame/gcomponent.h"
+#include "rizen/rizen.h"
 
 /*
     Init
@@ -33,7 +34,7 @@ void init(App* app)
     // camera
     camera_tps.init(Input::display_size());
     camera_tps.set_distance(30);
-    camera_tps.set_angle_y(0);
+    camera_tps.set_angle_y(20);
     camera_tps.move_target(glm::vec3(0, 8, 0));
 
     // Shader
@@ -54,39 +55,38 @@ void init(App* app)
     material.set_reflectivity(1.0);
     material.set_shine_damper(4);
     material.set_texture(&texture);
-    app->renderer()->bind_ubo(&material);
+    //app->renderer()->bind_ubo(&material);
 
     material2.init(&basic_inst_shader);
     material2.set_color(glm::vec4(0, 0, 1, 0));
     material2.set_ambient(0.5);
-    app->renderer()->bind_ubo(&material2);
+    //app->renderer()->bind_ubo(&material2);
 
     // Model
     model.init(&cube, &material);
     model2.init_instanced(&cube, &material2);
 
     // Entity
+    // Entity* john = new Entity();
+    // john->init(&model);
+    // john->set_scale(glm::vec3(2));
+    // john->set_position(glm::vec3(0, 0, 5));
+    // john->update_transform();
+    // //john->components()->add<MoveComponent>(new MoveComponent(&camera_tps));
+    // entities.push_back(john);
 
-    Entity* john = new Entity();
-    john->init(&model);
-    john->set_scale(glm::vec3(2));
-    john->set_position(glm::vec3(0, 0, 5));
-    john->update_transform();
-    john->components()->add<MoveComponent>(new MoveComponent());
-    entities.push_back(john);
+    // for (int i = 0; i < 100; i++) {
+    //     Entity* entity = new Entity();
+    //     entity->init(&model);
+    //     entity->set_scale(glm::vec3(0.5));
 
-    for (int i = 0; i < 100; i++) {
-        Entity* entity = new Entity();
-        entity->init(&model);
-        entity->set_scale(glm::vec3(0.5));
+    //     int x = i % 10;
+    //     int y = i / 10;
 
-        int x = i % 10;
-        int y = i / 10;
-
-        entity->set_position(glm::vec3(x * 2 - 10, y * 2, 0));
-        entity->update_transform();
-        entities.push_back(entity);
-    }
+    //     entity->set_position(glm::vec3(x * 2 - 10, y * 2, 0));
+    //     entity->update_transform();
+    //     entities.push_back(entity);
+    //}
 
     // for (int i = 0; i < 10000; i++) {
     //     Entity* entity = new Entity();
@@ -117,23 +117,27 @@ void update(App* app)
         fbuffer_square.update_transform();
         camera_tps.resize(d_size);
     }
+
+    if (Input::key_pressed(SDLK_RETURN)) {
+        Input::connect_controller();
+    }
     
     // update camera
-    camera_tps.move_angle_around(0.5 * Time::game_delta());
+    //camera_tps.move_angle_around(0.5 * Time::game_delta());
+    //camera_tps.set_angle_around();
     camera_tps.update();
 
     // entity update
-    for (auto entity : entities) {
-        // entity->move_rotation(glm::vec3(0.3, 0.4, rand_float(0, 0.3)));
-        entity->update();
-    }
+    // for (auto entity : entities) {
+    //     entity->update();
+    // }
 
     // render 3D objects
     frame_buffer.bind();
     app->clear(glm::vec4(0.1));
-    app->renderer()->begin(&camera_tps);
-    app->renderer()->render(entities);
-    app->renderer()->end();
+    // app->renderer()->begin(&camera_tps);
+    // app->renderer()->render(entities);
+    // app->renderer()->end();
     frame_buffer.unbind();
     
     // render frame buffer

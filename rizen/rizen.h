@@ -3,6 +3,8 @@
 
 #include "app/app.h"
 #include "utils/rizen_math.h"
-#include "opengl/renderer.h"
+#include "opengl/camera.h"
+#include "opengl/model.h"
+//#include "opengl/renderer.h"
 
 #endif //RIZEN_H

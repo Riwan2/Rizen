@@ -3,8 +3,10 @@
 App::App() {}
 App::~App() 
 {
-    delete m_renderer;
+    Coordinator::clean_up();
+    //delete m_renderer;
     delete m_renderer_2d;
+    Input::clean_up();
     SDL_GL_DeleteContext(m_gl_context);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -52,14 +54,17 @@ bool App::init(const AppInfo& info)
     m_renderer_2d->init();
 
     // init renderer
-    m_renderer = new Renderer();
-    m_renderer->init();
+    //m_renderer = new Renderer();
+    //m_renderer->init();
 
     // init time
     Time::init();
 
     // vsync
     SDL_GL_SetSwapInterval(-1);
+
+    // ecs
+    Coordinator::init();
 
     return true;
 }

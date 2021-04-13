@@ -39,6 +39,7 @@ set(RIZEN_SOURCE_FILES
     ../rizen/opengl/model.cpp
     ../rizen/opengl/renderer.cpp
     ../rizen/entity/entity.cpp
+    ../rizen/entity/ecs.cpp
 )
 
 add_library(rizen STATIC ${RIZEN_SOURCE_FILES})

@@ -67,13 +67,13 @@ public:
     }
 
     template<class T>
-    Component* get()
+    T* get()
     {
         std::string name = typeid(T).name();
 
         for (auto component : m_components) {
             if (dynamic_cast<T*>(component))
-                return component;
+                return (T*)component;
         }
 
         rizen_error("component get doesn't exist error: " + name);
