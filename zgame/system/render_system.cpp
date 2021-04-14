@@ -33,21 +33,19 @@ void RenderSystem::bind_ubo(Material* material)
 void RenderSystem::render(Camera* camera, entt::registry& registry)
 {
     begin(camera);
-    auto view = registry.view<Transform, Renderable>();
+    auto group = registry.group<Transform, Renderable>();
 
-    for (auto entity : view) {
-        Transform* transform = &view.get<Transform>(entity);
-        Renderable* renderable = &view.get<Renderable>(entity);
+    for (auto [entity, transform, renderable] : group.each()) {
 
-        Model* model = renderable->model;
+        Model* model = renderable.model;
         auto pair = m_render_map.find(model);
 
         if (pair == m_render_map.end()) {
             std::queue<Transform*> batch;
-            batch.push(transform);
+            batch.push(&transform);
             m_render_map[model] = batch;
         } else {
-            pair->second.push(transform);
+            pair->second.push(&transform);
         }
     }
 
@@ -115,4 +113,5 @@ void RenderSystem::render_instanced(Model* model, std::queue<Transform*>& batch)
     glBufferSubData(GL_ARRAY_BUFFER, 0, num_entities * sizeof(glm::mat4), models);
 
     model->mesh()->render_instanced(num_entities);
+    delete[] models;
 }

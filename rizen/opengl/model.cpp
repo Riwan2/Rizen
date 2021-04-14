@@ -255,7 +255,9 @@ bool Mesh::init(const std::string& p_filename)
 	}
 
     init(vertices, m_num_vertices, indices, m_num_indices);
-
+	delete[] indices;
+	delete[] vertices;
+	
     return true;
 }
 

@@ -23,6 +23,7 @@ Model model, model2;
 
 // System
 RenderSystem render_system;
+MoveSystem move_system;
 
 // ECS
 entt::registry registry;
@@ -115,6 +116,7 @@ void init(App* app)
         auto entity = registry.create();
         {
             registry.emplace<Renderable>(entity, Renderable(&model));
+            registry.emplace<Move>(entity);
             Transform* transform = &registry.emplace<Transform>(entity, Transform());
 
             transform->set_scale(glm::vec3(0.5));
@@ -126,7 +128,7 @@ void init(App* app)
         }
     }
 
-    for (int i = 0; i < 5000; i++) {
+    for (int i = 0; i < 10000; i++) {
         auto entity = registry.create();
         {
             registry.emplace<Renderable>(entity, Renderable(&model2));
@@ -163,17 +165,20 @@ void update(App* app)
         Input::connect_controller();
     }
     
+    // update system
+    move_system.update(registry);
+
     // update camera
     camera_tps.move_angle_around(0.1 * Time::game_delta());
     camera_tps.update();
 
-    // render 3D objects
+    // // render 3D objects
     frame_buffer.bind();
-    app->clear(glm::vec4(1.0));
+    app->clear(glm::vec4(0.1));
     render_system.render(&camera_tps, registry);
     frame_buffer.unbind();
     
-    // render frame buffer
+    // // render frame buffer
     app->renderer_2d()->begin(Input::display_size(), &basic_shader2D);
     app->renderer_2d()->render_square(fbuffer_square, frame_buffer.texture());
     app->renderer_2d()->end();
@@ -191,7 +196,7 @@ int main()
 
     while(!app->on_quit()) {
         app->begin();
-        app->clear(glm::vec4(0.9));
+        app->clear(glm::vec4(0.2));
         update(app);
         app->end();
     }

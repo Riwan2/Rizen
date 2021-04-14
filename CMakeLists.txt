@@ -22,6 +22,7 @@ set(SOURCE_FILES
     main.cpp
     zgame/gcomponent.cpp
     zgame/system/render_system.cpp
+    zgame/system/move_system.cpp
 )
 
 message("")

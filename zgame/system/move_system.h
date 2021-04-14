@@ -1,0 +1,19 @@
+#ifndef MOVE_SYSTEM_H
+#define MOVE_SYSTEM_H
+
+#include "../component/transform.h"
+#include "../component/move.h"
+#include "../component/renderable.h"
+
+#include "../../rizen/utils/rizen_time.h"
+
+#include "../../extern/entt/entity/registry.hpp"
+
+class MoveSystem {
+public:
+    void update(entt::registry& registry);
+private:
+
+};
+
+#endif //MOVE_SYSTEM_H
