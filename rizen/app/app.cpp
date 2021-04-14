@@ -3,7 +3,6 @@
 App::App() {}
 App::~App() 
 {
-    Coordinator::clean_up();
     //delete m_renderer;
     delete m_renderer_2d;
     Input::clean_up();
@@ -62,9 +61,6 @@ bool App::init(const AppInfo& info)
 
     // vsync
     SDL_GL_SetSwapInterval(-1);
-
-    // ecs
-    Coordinator::init();
 
     return true;
 }

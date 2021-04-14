@@ -4,7 +4,6 @@
 #include "input.h"
 #include "../opengl/opengl_2d.h"
 //#include "../opengl/renderer.h"
-#include "../entity/ecs.h"
 
 //#define APP_DEBUG
 

@@ -29,13 +29,14 @@ void RenderSystem::bind_ubo(Material* material)
 	glUniformBlockBinding(shader->program_id(), index, MATRICES_INDEX);
 }
 
-void RenderSystem::render(Camera* camera)
+void RenderSystem::render(Camera* camera, entt::registry& registry)
 {
     begin(camera);
+    auto view = registry.view<Transform, Renderable>();
 
-    for (auto entity : m_entities) {
-        auto transform = Coordinator::get_component<Transform>(entity);
-        auto renderable = Coordinator::get_component<Renderable>(entity);
+    for (auto entity : view) {
+        Transform* transform = &registry.get<Transform>(entity);
+        Renderable* renderable = &registry.get<Renderable>(entity);
 
         Model* model = renderable->model;
         auto pair = m_render_map.find(model);

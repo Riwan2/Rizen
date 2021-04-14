@@ -15,74 +15,20 @@ Square fbuffer_square;
 CameraTPS camera_tps;
 Shader basic_shader, basic_inst_shader;
 Texture texture;
-std::vector<Entity*> entities;
+//std::vector<Entity*> entities;
 
 // Model
 Mesh cube;
 Material material, material2;
 Model model, model2;
 
-class ASystem : public System {
-public:
-    void update() {
-        for (auto entity : m_entities) {
-            auto t = Coordinator::get_component<Transform>(entity);
-        }  
-    }
-};
-
-class BSystem : public System {
-public:
-    void update() {
-        for (auto entity : m_entities) {
-            auto t = Coordinator::get_component<Transform>(entity);
-        }  
-    }
-};
-
-
 // System
-RenderSystem* render_system;
-ASystem* a_system;
-BSystem* b_system;
+RenderSystem render_system;
+
+entt::registry registry;
 
 void init(App* app)
 {
-    /*
-        Init Component
-    */
-
-    Coordinator::register_component<Transform>();
-    Coordinator::register_component<Renderable>();
-
-    /*
-        Init System
-    */
-
-    render_system = Coordinator::register_system<RenderSystem>();
-    {
-        Signature signature;
-        signature.set(Coordinator::get_component_type<Transform>());
-        signature.set(Coordinator::get_component_type<Renderable>());
-        Coordinator::set_system_signature<RenderSystem>(signature);
-        render_system->init();
-    }
-
-    a_system = Coordinator::register_system<ASystem>();
-    {
-        Signature signature;
-        signature.set(Coordinator::get_component_type<Transform>());
-        Coordinator::set_system_signature<ASystem>(signature);   
-    }
-
-    b_system = Coordinator::register_system<BSystem>();
-    {
-        Signature signature;
-        signature.set(Coordinator::get_component_type<Transform>());
-        Coordinator::set_system_signature<BSystem>(signature);   
-    }
-
-
     // Frame buffer
     glm::vec2 d_size = Input::display_size();
     frame_buffer.init(d_size);
@@ -127,27 +73,31 @@ void init(App* app)
     model2.init_instanced(&cube, &material2);
 
     /*
+        System
+    */
+
+    render_system.init();
+
+    /*
         Entity
     */
 
-   Entity player = Coordinator::create_entity();
+   auto player = registry.create();
    {
-       Coordinator::add_component<Transform>(player, Transform());
-       Coordinator::add_component<Renderable>(player, Renderable(&model));
+       registry.emplace<Renderable>(player, Renderable(&model));
+       Transform* transform = &registry.emplace<Transform>(player, Transform());
        
-       auto transform = Coordinator::get_component<Transform>(player);
        transform->set_position(glm::vec3(0, 0, 5));
        transform->set_scale(glm::vec3(2));
        transform->update();
    }
 
-    for (int i = 0; i < 100; i++) {
-        Entity entity = Coordinator::create_entity();
+    for (int i = 0; i < 100; i++) {;
+        auto entity = registry.create();
         {
-            Coordinator::add_component<Transform>(entity, Transform());
-            Coordinator::add_component<Renderable>(entity, Renderable(&model));
+            registry.emplace<Renderable>(entity, Renderable(&model));
+            Transform* transform = &registry.emplace<Transform>(entity, Transform());
 
-            auto transform = Coordinator::get_component<Transform>(entity);
             transform->set_scale(glm::vec3(0.5));
 
             int x = i % 10;
@@ -159,12 +109,10 @@ void init(App* app)
     }
 
     for (int i = 0; i < 5000; i++) {
-        Entity entity = Coordinator::create_entity();
+        auto entity = registry.create();
         {
-            Coordinator::add_component<Transform>(entity, Transform());
-            Coordinator::add_component<Renderable>(entity, Renderable(&model2));
-
-            auto transform = Coordinator::get_component<Transform>(entity);
+            registry.emplace<Renderable>(entity, Renderable(&model2));
+            Transform* transform = &registry.emplace<Transform>(entity, Transform());
             transform->set_scale(glm::vec3(0.2));
 
             float x = i % 10 + rand_float(-1, 1);
@@ -213,9 +161,7 @@ void update(App* app)
     // app->renderer()->render(entities);
     // app->renderer()->end();
 
-    render_system->render(&camera_tps);
-    a_system->update();
-    b_system->update();
+    render_system.render(&camera_tps, registry);
 
     frame_buffer.unbind();
     
@@ -241,9 +187,6 @@ int main()
         update(app);
         app->end();
     }
-
-    for (auto entity : entities)
-        delete entity;
 
     delete app;
     return 0;

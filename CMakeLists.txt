@@ -13,7 +13,7 @@ message(STATUS "CMAKE_PROJECT_NAME: " ${CMAKE_PROJECT_NAME})
 message(STATUS "CMAKE_FINDCMAKE: " ${CMAKE_SOURCE_DIR}/CMAKE)
 
 # set cmake vars
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMAKE")
 
@@ -38,9 +38,6 @@ set(RIZEN_SOURCE_FILES
     ../rizen/opengl/texture.cpp
     ../rizen/opengl/camera.cpp
     ../rizen/opengl/model.cpp
-    ../rizen/opengl/renderer.cpp
-    ../rizen/entity/entity.cpp
-    ../rizen/entity/ecs.cpp
 )
 
 add_library(rizen STATIC ${RIZEN_SOURCE_FILES})

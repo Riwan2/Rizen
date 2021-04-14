@@ -4,14 +4,18 @@
 #include "../component/transform.h"
 #include "../component/renderable.h"
 
-#include "../../rizen/entity/ecs.h"
 #include "../../rizen/opengl/camera.h"
 #include "../../rizen/utils/rizen_time.h"
 
-class RenderSystem : public System {
+#include "../../extern/entt.h"
+
+#include <queue>
+//#include <unordered_map>
+
+class RenderSystem {
 public:
     void init();
-    void render(Camera* camera);
+    void render(Camera* camera, entt::registry& registry);
 
     void bind_ubo(Material* material);
 
