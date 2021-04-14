@@ -7,10 +7,10 @@
 #include "../../rizen/opengl/camera.h"
 #include "../../rizen/utils/rizen_time.h"
 
-#include "../../extern/entt.h"
+#include "../../extern/entt/entity/registry.hpp"
 
 #include <queue>
-//#include <unordered_map>
+#include <unordered_map>
 
 class RenderSystem {
 public:
