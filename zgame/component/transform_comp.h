@@ -3,44 +3,65 @@
 
 #include "../../rizen/utils/rizen_math.h"
 
-struct TransformComponent {
+#include <iostream>
+
+const glm::vec3 UP = glm::vec3(0, 1, 0);
+
+class TransformComponent {
+public:
     void update()
     {
-        model = glm::mat4(1.0);
-        model = glm::translate(model, position);
-        model = glm::scale(model, scale);
-        model *= glm::toMat4(quat);
+        if (!m_got_updated) return;
+        m_model = glm::mat4(1.0);
+        m_model = glm::translate(m_model, m_position);
+        m_model = glm::scale(m_model, m_scale);
+        m_model *= glm::toMat4(m_quat);
+        m_got_updated = false;
     }
 
     // rotation is in degree
-    void set_rotation(const glm::vec3& p_rotation)
+    void set_rotation(const glm::vec3& rotation)
     {
-        rotation.x = glm::radians(fmod(p_rotation.x, 360));
-        rotation.y = glm::radians(fmod(p_rotation.y, 360));
-        rotation.z = glm::radians(fmod(p_rotation.z, 360));
-	    quat = glm::quat(rotation);
+        m_rotation.x = glm::radians(fmod(rotation.x, 360));
+        m_rotation.y = glm::radians(fmod(rotation.y, 360));
+        m_rotation.z = glm::radians(fmod(rotation.z, 360));
+	    m_quat = glm::quat(m_rotation);
+        m_got_updated = true;
     }
 
-    void set_position(const glm::vec3& p_position) { position = p_position; }
-    void set_scale(const glm::vec3& p_scale) { scale = p_scale; }
+    void set_position(const glm::vec3& position) { m_position = position; m_got_updated = true; }
+    void set_scale(const glm::vec3& scale) { m_scale = scale; m_got_updated = true; }
 
-    void move_rotation(const glm::vec3& p_rotation)
+    void move_rotation(const glm::vec3& rotation)
     {
-        rotation.x += glm::radians(fmod(p_rotation.x, 360));
-        rotation.y += glm::radians(fmod(p_rotation.y, 360));
-        rotation.z += glm::radians(fmod(p_rotation.z, 360));
-	    quat = glm::quat(rotation);
+        m_rotation.x += glm::radians(fmod(rotation.x, 360));
+        m_rotation.y += glm::radians(fmod(rotation.y, 360));
+        m_rotation.z += glm::radians(fmod(rotation.z, 360));
+	    m_quat = glm::quat(m_rotation);
+        m_got_updated = true;
     }
 
-    void move_position(const glm::vec3& p_position) { position += p_position; }
-    void move_scale(const glm::vec3& p_scale) { scale *= p_scale; }
-    
-    glm::vec3 position = glm::vec3(0.0);
-    glm::vec3 scale = glm::vec3(1.0);
-    glm::vec3 rotation = glm::vec3(0.0);
+    void move_position(const glm::vec3& position) { m_position += position; m_got_updated = true; }
+    void move_scale(const glm::vec3& scale) { m_scale *= scale; m_got_updated = true; }
 
-    glm::quat quat = glm::quat(1.0, 0.0, 0.0, 0.0);
-    glm::mat4 model = glm::mat4(1.0);
+    void set_quat(const glm::quat& quat) { m_quat = quat; m_got_updated = true; }
+
+    const glm::vec3& position() const { return m_position; }
+    const glm::vec3& scale() const { return m_scale; }
+    const glm::vec3& rotation() const { return m_rotation; }
+
+    const glm::quat& quat() const { return m_quat; }
+    const glm::mat4& model() const { return m_model; }
+
+private:
+    glm::vec3 m_position;
+    glm::vec3 m_scale;
+    glm::vec3 m_rotation;
+
+    glm::quat m_quat;
+    glm::mat4 m_model;
+
+    bool m_got_updated = false;
 };
 
 #endif //TRANSFORM_COMPONENT_H

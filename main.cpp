@@ -18,12 +18,13 @@ Texture texture;
 
 // Model
 Mesh cube, dragon;
-Material material, material2;
+Material material, material2, material_dragon;
 Model model, model2, model_dragon;
 
 // System
 RenderSystem render_system;
-PlayerMoveSystem player_move_system;
+MoveSystem move_system;
+InputMoveSystem input_move_system;
 
 // ECS
 entt::registry registry;
@@ -76,7 +77,7 @@ void init(App* app)
     */
     
     cube.init("cube.obj");
-    dragon.init("dragon.obj");
+    dragon.init("character.obj");
     
     /* 
         Material
@@ -95,12 +96,17 @@ void init(App* app)
     material2.set_ambient(0.5);
     render_system.bind_ubo(&material2);
 
+    material_dragon.init(&basic_shader);
+    material_dragon.set_color(glm::vec4(0.7, 0.9, 0.3, 1.0));
+    material_dragon.set_ambient(1.0);
+    render_system.bind_ubo(&material_dragon);
+
     /*
         Model
     */
 
     model.init(&cube, &material);
-    model_dragon.init(&dragon, &material);
+    model_dragon.init(&dragon, &material_dragon);
     model2.init_instanced(&cube, &material2);
 
     /*
@@ -110,11 +116,12 @@ void init(App* app)
    player = registry.create();
    {
        registry.emplace<RenderComponent>(player, RenderComponent(&model_dragon));
-       registry.emplace<PlayerMoveComponent>(player, PlayerMoveComponent());
+       registry.emplace<MoveComponent>(player, MoveComponent());
+       registry.emplace<InputMoveComponent>(player, InputMoveComponent());
        auto transform = &registry.emplace<TransformComponent>(player, TransformComponent());
        
        transform->set_position(glm::vec3(0, 0, 10));
-       transform->set_scale(glm::vec3(0.5));
+       transform->set_scale(glm::vec3(1));
        transform->update();
    }
 
@@ -122,6 +129,7 @@ void init(App* app)
         auto entity = registry.create();
         {
             registry.emplace<RenderComponent>(entity, RenderComponent(&model));
+            //registry.emplace<MoveComponent>(entity, MoveComponent());
             auto transform = &registry.emplace<TransformComponent>(entity, TransformComponent());
 
             transform->set_scale(glm::vec3(0.5));
@@ -133,20 +141,20 @@ void init(App* app)
         }
     }
 
-    // for (int i = 0; i < 10000; i++) {
-    //     auto entity = registry.create();
-    //     {
-    //         registry.emplace<Renderable>(entity, Renderable(&model2));
-    //         Transform* transform = &registry.emplace<Transform>(entity, Transform());
-    //         transform->set_scale(glm::vec3(0.2));
+    for (int i = 0; i < 10000; i++) {
+        auto entity = registry.create();
+        {
+            registry.emplace<RenderComponent>(entity, RenderComponent(&model2));
+            TransformComponent* transform = &registry.emplace<TransformComponent>(entity, TransformComponent());
+            transform->set_scale(glm::vec3(0.2));
 
-    //         float x = i % 10 + rand_float(-1, 1);
-    //         float y = i / 600.0;
-    //         float z = rand_float(-7, 7);
-    //         transform->set_position(glm::vec3(x * 2 - 10, y, z + 3));
-    //         transform->update();
-    //     }
-    // }
+            float x = i % 10 + rand_float(-1, 1);
+            float y = i / 600.0;
+            float z = rand_float(-7, 7);
+            transform->set_position(glm::vec3(x * 2 - 20, y - 10, z - 20));
+            transform->update();
+        }
+    }
 }
 
 /*
@@ -166,18 +174,19 @@ void update(App* app)
     }
     
     // update system
-    player_move_system.update(registry);
+    input_move_system.update(registry);
+    move_system.update(registry);
 
     // update camera
     //camera_tps.move_angle_around(0.1 * Time::game_delta());
     auto player_trans = registry.try_get<TransformComponent>(player);
-    auto player_move = registry.try_get<PlayerMoveComponent>(player);
+    auto player_move = registry.try_get<InputMoveComponent>(player);
 
     if (player_move) {
-        camera_tps.set_angle_around(-player_move->get_rotation());
+        camera_tps.set_angle_around(-player_move->get_rotation() + 90);
     }
     if (player_trans) {
-        camera_tps.set_target(player_trans->position);
+        camera_tps.set_target(player_trans->position());
     }
     
     // set camera angle y with the controller

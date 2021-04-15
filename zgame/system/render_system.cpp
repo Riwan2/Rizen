@@ -45,6 +45,8 @@ void RenderSystem::render(Camera* camera, entt::registry& registry)
         // transform.move_rotation(glm::vec3(cos(rot), rnd * 10, sin(rot)));
         // transform.update();
 
+        transform.update();
+
         if (pair == m_render_map.end()) {
             std::queue<TransformComponent*> batch;
             batch.push(&transform);
@@ -96,7 +98,7 @@ void RenderSystem::render(Model* model, std::queue<TransformComponent*>& batch)
 {
      while (!batch.empty()) {
         auto transform = batch.front();
-        model->material()->shader()->set_mat4("model", transform->model);
+        model->material()->shader()->set_mat4("model", transform->model());
         model->mesh()->render();
         batch.pop();
     }
@@ -109,7 +111,7 @@ void RenderSystem::render_instanced(Model* model, std::queue<TransformComponent*
     glm::mat4* models = new glm::mat4[num_entities];
     for (int i = 0; i < num_entities; i++) {
         auto transform = batch.front();
-        models[i] = transform->model;
+        models[i] = transform->model();
         batch.pop();
     }
 

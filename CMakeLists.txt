@@ -21,7 +21,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMAKE")
 set(SOURCE_FILES 
     main.cpp
     zgame/system/render_system.cpp
-    zgame/system/player_move_system.cpp
+    zgame/system/move_system.cpp
+    zgame/system/input_move_system.cpp
 )
 
 message("")

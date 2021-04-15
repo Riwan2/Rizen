@@ -1,9 +1,9 @@
-#ifndef PLAYER_MOVE_COMPONENT_H
-#define PLAYER_MOVE_COMPONENT_H
+#ifndef INPUT_MOVE_COMPONENT_H
+#define INPUT_MOVE_COMPONENT_H
 
-struct PlayerMoveComponent
+struct InputMoveComponent
 {
-    PlayerMoveComponent() {}
+    InputMoveComponent() {}
 
     //speed
     float max_speed = 0.15;
@@ -12,7 +12,7 @@ struct PlayerMoveComponent
     float acceleration = 0.1;
 
     // offset but model should be correctly oriented & rotation
-    float rotation_offset = -90;
+    float rotation_offset = 0;//-90;
     float rotation = 0;
     float rotation_speed = 0.5;
     
@@ -23,8 +23,7 @@ struct PlayerMoveComponent
     float visual_rotation_speed = 0.1;
 
     // useful for movement
-    glm::vec3 velocity = glm::vec3(0.0);
     glm::vec2 direction = glm::vec2(0.0);    
 };
 
-#endif //PLAYER_MOVE_COMPONENT_H
+#endif //INPUT_MOVE_COMPONENT_H
