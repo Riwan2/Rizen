@@ -69,7 +69,7 @@ public:
 	void move_angle_around(float angle) { m_angle_around = fmod(m_angle_around - angle, 360.0f); }
 
 	const float roll() const { return m_roll; }
-	const float angle_y() const { return m_angle_y; }
+	const float angle_y() const { return -m_angle_y; }
     const float distance() const { return m_distance; }
 	const float angle_around() const { return m_angle_around; }
 

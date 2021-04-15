@@ -7,9 +7,10 @@ glm::vec2 Input::m_mouse_scroll;
 glm::vec2 Input::m_last_mouse_scroll;
 glm::vec2 Input::m_display_size;
 
-SDL_Joystick* Input::m_controller = nullptr;
-glm::vec2 Input::m_left_controller_dir;
-glm::vec2 Input::m_rigth_controller_dir;
+SDL_GameController* Input::m_controller;
+
+glm::vec2 Input::m_left_controller_axis;
+glm::vec2 Input::m_right_controller_axis;
 
 bool Input::m_quit;
 bool Input::m_resized;
@@ -25,14 +26,17 @@ void Input::init(const glm::vec2& display_size)
     m_quit = false;
     m_resized = false;
 
-    m_left_controller_dir = glm::vec2(0.0);
-    m_rigth_controller_dir = glm::vec2(0.0);
+    m_left_controller_axis = glm::vec2(0.0);
+    m_right_controller_axis = glm::vec2(0.0);
     connect_controller();
 }
 
+#include <iostream>
+
 void Input::clean_up()
 {
-    SDL_JoystickClose(m_controller);
+    if (m_controller)
+        SDL_GameControllerClose(m_controller);
 }
 
 void Input::update(SDL_Window* window)
@@ -50,6 +54,8 @@ void Input::update(SDL_Window* window)
 
     m_mouse_scroll = glm::vec2(0, 0);
     m_last_mouse_scroll = glm::vec2(0, 0);
+
+    update_controller();
 }
 
 void Input::window_event(SDL_Window* window)
@@ -58,8 +64,6 @@ void Input::window_event(SDL_Window* window)
     if (!(wflags & SDL_WINDOW_INPUT_FOCUS))
         SDL_Delay(40);
 }
-
-#include <iostream>
 
 void Input::process_event(SDL_Event* event) 
 {
@@ -81,30 +85,8 @@ void Input::process_event(SDL_Event* event)
             }
             break;
 
-        case SDL_JOYAXISMOTION:
-            if (event->jaxis.which == 0) {
-                if (event->jaxis.axis == 0) {
-                        m_left_controller_dir.x = event->jaxis.value;
-                } else if (event->jaxis.axis == 1) {
-                        m_left_controller_dir.y = event->jaxis.value;
-                } else if (event->jaxis.axis == 3) {
-                    if (event->jaxis.value < -CONTROLLER_DEAD_ZONE) {
-                        m_rigth_controller_dir.x = -1;
-                    } else if (event->jaxis.value > CONTROLLER_DEAD_ZONE) {
-                        m_rigth_controller_dir.x = 1;
-                    } else {
-                        m_rigth_controller_dir.x = 0;
-                    }
-                } else if (event->jaxis.axis == 4) {
-                    if (event->jaxis.value < -CONTROLLER_DEAD_ZONE) {
-                        m_rigth_controller_dir.y = -1;
-                    } else if (event->jaxis.value > CONTROLLER_DEAD_ZONE) {
-                        m_rigth_controller_dir.y = 1;
-                    } else {
-                        m_rigth_controller_dir.y = 0;
-                    }
-                }
-            }
+        case SDL_CONTROLLERDEVICEADDED:
+            connect_controller();
             break;
         
         default:
@@ -124,20 +106,35 @@ bool Input::key_pressed(SDL_KeyCode keyCode)
     return m_keystates[code] && !m_last_keystates[code];
 }
 
-#include <iostream>
-
+/*
+    Controller
+*/
 
 void Input::connect_controller()
 {
-    std::cout << SDL_NumJoysticks() << std::endl;
+    #ifdef CONTROLLER_ACTIVE
     if (SDL_NumJoysticks() > 0) {
-        m_controller = SDL_JoystickOpen(0);
+        if (!SDL_IsGameController(0)) { std::cout << "game controller opening error: " << SDL_GetError() << "\n"; return ; }
+        m_controller = SDL_GameControllerOpen(0);
         if (m_controller) {
-            printf("Opened Joystick 0\n");
-            printf("Name: %s\n", SDL_JoystickName(0));
-            printf("Number of Axes: %d\n", SDL_JoystickNumAxes(m_controller));
-            printf("Number of Buttons: %d\n", SDL_JoystickNumButtons(m_controller));
-            printf("Number of Balls: %d\n", SDL_JoystickNumBalls(m_controller));
+            std::cout << "Valid controller founded: " << SDL_GameControllerName(m_controller) << "\n";
+            char* mapping = SDL_GameControllerMapping(m_controller);
+            std::cout << "Mapping: " << mapping << "\n";
+            SDL_free(mapping);
         }
     }
+    #endif
+}
+
+void Input::update_controller()
+{
+    if (!m_controller) return;
+    
+    m_left_controller_axis.x = SDL_GameControllerGetAxis(m_controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTX);
+    m_left_controller_axis.y = SDL_GameControllerGetAxis(m_controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTY);
+    m_right_controller_axis.x = SDL_GameControllerGetAxis(m_controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTX);
+    m_right_controller_axis.y = SDL_GameControllerGetAxis(m_controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTY);
+
+    m_left_controller_axis /= 32767.0f;
+    m_right_controller_axis /= 32767.0f;
 }

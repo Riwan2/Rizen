@@ -164,11 +164,6 @@ void update(App* app)
         fbuffer_square.update_transform();
         camera_tps.resize(d_size);
     }
-
-    // detect controller
-    if (Input::key_pressed(SDLK_RETURN)) {
-        Input::connect_controller();
-    }
     
     // update system
     move_system.update(registry);
@@ -185,6 +180,14 @@ void update(App* app)
         camera_tps.set_target(player_trans->position);
     }
     
+    // set camera angle y with the controller
+    float controller_y = -Input::right_controller_axis().y * Time::game_delta();
+
+    if (controller_y > 0 && camera_tps.angle_y() < 50)
+        camera_tps.move_angle_y(controller_y);
+    else if (controller_y < 0 && camera_tps.angle_y() > 20)
+        camera_tps.move_angle_y(controller_y);
+
     camera_tps.update();
 
     // // render 3D objects

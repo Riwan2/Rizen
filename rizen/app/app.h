@@ -3,7 +3,6 @@
 
 #include "input.h"
 #include "../opengl/opengl_2d.h"
-//#include "../opengl/renderer.h"
 
 //#define APP_DEBUG
 
