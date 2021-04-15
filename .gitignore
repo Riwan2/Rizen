@@ -6,4 +6,4 @@ CMakeCache.txt
 *.a
 Makefile
 *.vscode
-extern/entt/*
+extern/*
