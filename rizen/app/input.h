@@ -9,6 +9,7 @@
 const int CONTROLLER_DEAD_ZONE = 8000;
 
 #define CONTROLLER_ACTIVE
+//#define CONTROLLER_INFO
 
 class Input {
 public:

@@ -34,6 +34,7 @@ glm::quat rotate_towards(glm::quat& q1, glm::quat& q2, float max_angle);
 */
 
 float lerp(float a, float b, float factor);
+glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, float factor);
 float lerp_degrees(float a, float b, float factor);
 
 #endif //RIZEN_MATH_H

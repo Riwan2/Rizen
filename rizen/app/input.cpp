@@ -116,12 +116,14 @@ void Input::connect_controller()
     if (SDL_NumJoysticks() > 0) {
         if (!SDL_IsGameController(0)) { std::cout << "game controller opening error: " << SDL_GetError() << "\n"; return ; }
         m_controller = SDL_GameControllerOpen(0);
+        #ifdef CONTROLLER_INFO
         if (m_controller) {
             std::cout << "Valid controller founded: " << SDL_GameControllerName(m_controller) << "\n";
             char* mapping = SDL_GameControllerMapping(m_controller);
             std::cout << "Mapping: " << mapping << "\n";
             SDL_free(mapping);
         }
+        #endif
     }
     #endif
 }

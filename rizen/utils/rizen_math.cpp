@@ -27,7 +27,8 @@ float rand_float(float min, float max)
     Quaternion
 */
 
-glm::quat rotate_towards(glm::quat& q1, glm::quat& q2, float max_angle) {
+glm::quat rotate_towards(glm::quat& q1, glm::quat& q2, float max_angle) 
+{
 	if(max_angle < 0.001f)
 		return q1;
 
@@ -55,8 +56,21 @@ glm::quat rotate_towards(glm::quat& q1, glm::quat& q2, float max_angle) {
     Lerp / Degree Lerp
 */
 
-float lerp(float a, float b, float factor) {
-  return a * (1.f - factor) + b * factor;
+float lerp(float a, float b, float factor) 
+{
+    if (factor < 0.001f)
+        return a;
+    if (abs(b - a) < 0.001f)
+        return b;
+    return a * (1.f - factor) + b * factor;
+}
+
+glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, float factor) 
+{
+    glm::vec2 result;
+    result.x = lerp(a.x, b.x, factor);
+    result.y = lerp(a.y, b.y, factor);
+    return result;
 }
 
 float lerp_degrees(float a, float b, float factor)
@@ -68,12 +82,14 @@ float lerp_degrees(float a, float b, float factor)
         // lerp upwards past 360
         b += 360.f;
         result = lerp(a, b, factor);
-        result = fmod(result, 360.0);
+        if (result >= 360.f)
+            result -= 360.f;
     } else if (diff > 180.0) {
         // lerp downwards past 0
         b -= 360.0;
         result = lerp(a, b, factor);
-        result = fmod(result, 360.0);
+        if (result < 0.f)
+            result += 360.f;
     } else {
         // straight lerp
         result = lerp(a, b, factor);

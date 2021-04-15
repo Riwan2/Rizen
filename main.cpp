@@ -23,7 +23,7 @@ Model model, model2, model_dragon;
 
 // System
 RenderSystem render_system;
-MoveSystem move_system;
+PlayerMoveSystem player_move_system;
 
 // ECS
 entt::registry registry;
@@ -110,7 +110,7 @@ void init(App* app)
    player = registry.create();
    {
        registry.emplace<RenderComponent>(player, RenderComponent(&model_dragon));
-       registry.emplace<MoveComponent>(player, MoveComponent());
+       registry.emplace<PlayerMoveComponent>(player, PlayerMoveComponent());
        auto transform = &registry.emplace<TransformComponent>(player, TransformComponent());
        
        transform->set_position(glm::vec3(0, 0, 10));
@@ -166,12 +166,12 @@ void update(App* app)
     }
     
     // update system
-    move_system.update(registry);
+    player_move_system.update(registry);
 
     // update camera
     //camera_tps.move_angle_around(0.1 * Time::game_delta());
     auto player_trans = registry.try_get<TransformComponent>(player);
-    auto player_move = registry.try_get<MoveComponent>(player);
+    auto player_move = registry.try_get<PlayerMoveComponent>(player);
 
     if (player_move) {
         camera_tps.set_angle_around(-player_move->get_rotation());
@@ -181,7 +181,7 @@ void update(App* app)
     }
     
     // set camera angle y with the controller
-    float controller_y = -Input::right_controller_axis().y * Time::game_delta();
+    float controller_y = Input::right_controller_axis().y * Time::game_delta();
 
     if (controller_y > 0 && camera_tps.angle_y() < 50)
         camera_tps.move_angle_y(controller_y);
