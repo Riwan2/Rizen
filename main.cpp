@@ -17,9 +17,9 @@ Shader basic_shader, basic_inst_shader;
 Texture texture;
 
 // Model
-Mesh cube;
+Mesh cube, dragon;
 Material material, material2;
-Model model, model2;
+Model model, model2, model_dragon;
 
 // System
 RenderSystem render_system;
@@ -27,6 +27,9 @@ MoveSystem move_system;
 
 // ECS
 entt::registry registry;
+
+// Entity
+entt::entity player;
 
 /*
     init
@@ -45,7 +48,7 @@ void init(App* app)
     // camera
     camera_tps.init(Input::display_size());
     camera_tps.set_distance(30);
-    camera_tps.set_angle_y(20);
+    camera_tps.set_angle_y(30);
     camera_tps.move_target(glm::vec3(0, 8, 0));
 
     /*
@@ -73,6 +76,7 @@ void init(App* app)
     */
     
     cube.init("cube.obj");
+    dragon.init("dragon.obj");
     
     /* 
         Material
@@ -96,28 +100,29 @@ void init(App* app)
     */
 
     model.init(&cube, &material);
+    model_dragon.init(&dragon, &material);
     model2.init_instanced(&cube, &material2);
 
     /*
         Entity
     */
 
-   auto player = registry.create();
+   player = registry.create();
    {
-       registry.emplace<Renderable>(player, Renderable(&model));
-       Transform* transform = &registry.emplace<Transform>(player, Transform());
+       registry.emplace<RenderComponent>(player, RenderComponent(&model_dragon));
+       registry.emplace<MoveComponent>(player, MoveComponent());
+       auto transform = &registry.emplace<TransformComponent>(player, TransformComponent());
        
-       transform->set_position(glm::vec3(0, 0, 5));
-       transform->set_scale(glm::vec3(2));
+       transform->set_position(glm::vec3(0, 0, 10));
+       transform->set_scale(glm::vec3(0.5));
        transform->update();
    }
 
     for (int i = 0; i < 100; i++) {;
         auto entity = registry.create();
         {
-            registry.emplace<Renderable>(entity, Renderable(&model));
-            registry.emplace<Move>(entity);
-            Transform* transform = &registry.emplace<Transform>(entity, Transform());
+            registry.emplace<RenderComponent>(entity, RenderComponent(&model));
+            auto transform = &registry.emplace<TransformComponent>(entity, TransformComponent());
 
             transform->set_scale(glm::vec3(0.5));
 
@@ -128,20 +133,20 @@ void init(App* app)
         }
     }
 
-    for (int i = 0; i < 10000; i++) {
-        auto entity = registry.create();
-        {
-            registry.emplace<Renderable>(entity, Renderable(&model2));
-            Transform* transform = &registry.emplace<Transform>(entity, Transform());
-            transform->set_scale(glm::vec3(0.2));
+    // for (int i = 0; i < 10000; i++) {
+    //     auto entity = registry.create();
+    //     {
+    //         registry.emplace<Renderable>(entity, Renderable(&model2));
+    //         Transform* transform = &registry.emplace<Transform>(entity, Transform());
+    //         transform->set_scale(glm::vec3(0.2));
 
-            float x = i % 10 + rand_float(-1, 1);
-            float y = i / 600.0;
-            float z = rand_float(-7, 7);
-            transform->set_position(glm::vec3(x * 2 - 10, y, z + 3));
-            transform->update();
-        }
-    }
+    //         float x = i % 10 + rand_float(-1, 1);
+    //         float y = i / 600.0;
+    //         float z = rand_float(-7, 7);
+    //         transform->set_position(glm::vec3(x * 2 - 10, y, z + 3));
+    //         transform->update();
+    //     }
+    // }
 }
 
 /*
@@ -169,7 +174,17 @@ void update(App* app)
     move_system.update(registry);
 
     // update camera
-    camera_tps.move_angle_around(0.1 * Time::game_delta());
+    //camera_tps.move_angle_around(0.1 * Time::game_delta());
+    auto player_trans = registry.try_get<TransformComponent>(player);
+    auto player_move = registry.try_get<MoveComponent>(player);
+
+    if (player_move) {
+        camera_tps.set_angle_around(-player_move->get_rotation());
+    }
+    if (player_trans) {
+        camera_tps.set_target(player_trans->position);
+    }
+    
     camera_tps.update();
 
     // // render 3D objects

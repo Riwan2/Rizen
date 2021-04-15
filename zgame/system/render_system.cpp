@@ -33,15 +33,20 @@ void RenderSystem::bind_ubo(Material* material)
 void RenderSystem::render(Camera* camera, entt::registry& registry)
 {
     begin(camera);
-    auto group = registry.group<Transform, Renderable>();
+    auto group = registry.group<TransformComponent, RenderComponent>();
 
     for (auto [entity, transform, renderable] : group.each()) {
 
         Model* model = renderable.model;
         auto pair = m_render_map.find(model);
 
+        // float rnd = rand_float(0.3, 0.7);
+        // float rot = Time::game_delta() * rnd;
+        // transform.move_rotation(glm::vec3(cos(rot), rnd * 10, sin(rot)));
+        // transform.update();
+
         if (pair == m_render_map.end()) {
-            std::queue<Transform*> batch;
+            std::queue<TransformComponent*> batch;
             batch.push(&transform);
             m_render_map[model] = batch;
         } else {
@@ -87,7 +92,7 @@ void RenderSystem::end()
     glDisable(GL_DEPTH_TEST);
 }
 
-void RenderSystem::render(Model* model, std::queue<Transform*>& batch)
+void RenderSystem::render(Model* model, std::queue<TransformComponent*>& batch)
 {
      while (!batch.empty()) {
         auto transform = batch.front();
@@ -97,7 +102,7 @@ void RenderSystem::render(Model* model, std::queue<Transform*>& batch)
     }
 }
 
-void RenderSystem::render_instanced(Model* model, std::queue<Transform*>& batch)
+void RenderSystem::render_instanced(Model* model, std::queue<TransformComponent*>& batch)
 {
     int num_entities = batch.size();
 

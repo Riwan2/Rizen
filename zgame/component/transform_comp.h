@@ -1,9 +1,9 @@
-#ifndef TRANSFORM_COMPONENT
-#define TRANSFORM_COMPONENT
+#ifndef TRANSFORM_COMPONENT_H
+#define TRANSFORM_COMPONENT_H
 
 #include "../../rizen/utils/rizen_math.h"
 
-struct Transform {
+struct TransformComponent {
     void update()
     {
         model = glm::mat4(1.0);
@@ -43,4 +43,4 @@ struct Transform {
     glm::mat4 model = glm::mat4(1.0);
 };
 
-#endif //TRANSFORM_COMPONENT
+#endif //TRANSFORM_COMPONENT_H

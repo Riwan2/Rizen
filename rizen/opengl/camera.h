@@ -10,6 +10,9 @@
     Camera
 */ 
 
+// PI / 180
+const float PI_180 = 57.295779513f;
+
 class Camera {
 public:
     Camera();
@@ -58,6 +61,7 @@ public:
 	void set_roll(float roll) { m_roll = fmod(roll, 360.0f); }
 	void set_angle_y(float angle) { m_angle_y = fmod(-angle, 360.0f); }
 	void set_angle_around(float angle) { m_angle_around = fmod(angle, 360.0f); }
+    void set_angle_around_rad(float angle) { m_angle_around = fmod(angle * PI_180, 360.0f); }
 
     void move_distance(float distance) { m_distance += distance; }
 	void move_roll(float roll) { m_roll = fmod(m_roll + roll, 360.0f); }

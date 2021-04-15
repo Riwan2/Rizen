@@ -1,8 +1,8 @@
 #ifndef RENDER_SYSTEM_H
 #define RENDER_SYSTEM_H
 
-#include "../component/transform.h"
-#include "../component/renderable.h"
+#include "../component/transform_comp.h"
+#include "../component/render_comp.h"
 
 #include "../../rizen/opengl/camera.h"
 #include "../../rizen/utils/rizen_time.h"
@@ -21,14 +21,14 @@ public:
 
 private:
     GLuint m_ubo;
-    std::unordered_map<Model*, std::queue<Transform*>> m_render_map;
+    std::unordered_map<Model*, std::queue<TransformComponent*>> m_render_map;
 
     void set_ubo();
     void begin(Camera* camera);
     void end();
 
-    void render(Model* model, std::queue<Transform*>& batch);
-    void render_instanced(Model* model, std::queue<Transform*>& batch);
+    void render(Model* model, std::queue<TransformComponent*>& batch);
+    void render_instanced(Model* model, std::queue<TransformComponent*>& batch);
 };
 
 #endif //RENDER_SYSTEM_H
