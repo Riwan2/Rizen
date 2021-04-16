@@ -27,7 +27,7 @@ float rand_float(float min, float max)
     Quaternion
 */
 
-glm::quat rotate_towards(glm::quat& q1, glm::quat& q2, float max_angle) 
+glm::quat rotate_towards(glm::quat q1, glm::quat q2, float max_angle) 
 {
 	if(max_angle < 0.001f)
 		return q1;
@@ -52,6 +52,35 @@ glm::quat rotate_towards(glm::quat& q1, glm::quat& q2, float max_angle)
 	return res;
 }
 
+glm::quat rotation_between_vector(glm::vec3 start, glm::vec3 dest) {
+	start = glm::normalize(start);
+	dest = glm::normalize(dest);
+
+	float cos_theta = glm::dot(start, dest);
+	glm::vec3 rotation_axis;
+
+	if (cos_theta < -1 + 0.001f){
+		rotation_axis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
+		if (glm::length2(rotation_axis) < 0.01 ) // bad luck, they were parallel, try again!
+			rotation_axis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
+
+		rotation_axis = normalize(rotation_axis);
+		return glm::angleAxis(glm::radians(180.0f), rotation_axis);
+	}
+
+	rotation_axis = cross(start, dest);
+
+	float s = sqrt((1 + cos_theta) * 2);
+	float invs = 1 / s;
+
+	return glm::quat (
+		s * 0.5f, 
+		rotation_axis.x * invs,
+		rotation_axis.y * invs,
+		rotation_axis.z * invs
+	);
+}
+
 /*
     Lerp / Degree Lerp
 */
@@ -70,6 +99,15 @@ glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, float factor)
     glm::vec2 result;
     result.x = lerp(a.x, b.x, factor);
     result.y = lerp(a.y, b.y, factor);
+    return result;
+}
+
+glm::vec3 lerp(const glm::vec3& a, const glm::vec3& b, float factor) 
+{
+    glm::vec3 result;
+    result.x = lerp(a.x, b.x, factor);
+    result.y = lerp(a.y, b.y, factor);
+    result.z = lerp(a.z, b.z, factor);
     return result;
 }
 
@@ -96,4 +134,24 @@ float lerp_degrees(float a, float b, float factor)
     }
 
     return result;
+}
+
+/*
+    Triangle interpolation
+*/
+
+#include "iostream"
+
+glm::vec3 barry_centric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
+{
+    float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
+    float l2 = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
+    float l3 = 1.0f - l1 - l2;
+    return l1 * p1 + l2 * p2 + l3 * p3;
+}
+
+float barry_centric_height(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
+{
+    return barry_centric(p1, p2, p3, pos).y;
 }

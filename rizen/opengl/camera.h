@@ -10,6 +10,10 @@
     Camera
 */ 
 
+const float FOV = 45;
+const float NEAR = 0.1f;
+const float FAR = 1000.0f;
+
 // PI / 180
 const float PI_180 = 57.295779513f;
 

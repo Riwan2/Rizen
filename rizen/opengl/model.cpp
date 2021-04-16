@@ -151,6 +151,9 @@ bool Mesh::init(const std::string& p_filename)
     Vertex* vertices;
     TriangleIndex* indices;
 
+	int min = 99999;
+	int max = -1;
+
     // get info from file
     while (std::getline(file, line)) {
 		if (line.size() > 64)
@@ -228,7 +231,15 @@ bool Mesh::init(const std::string& p_filename)
 				face_index.norm_index = std::stoi(index_str);
 
 				list_indices.push_back(face_index.pos_index - 1);
-				vertices[face_index.pos_index - 1].pos = positions[face_index.pos_index - 1];
+
+				glm::vec3 position = positions[face_index.pos_index - 1];
+				if (position.y <= min)
+					min = position.y;
+
+				if (position.y >= max)
+					max = position.y;
+
+				vertices[face_index.pos_index - 1].pos = position;
 				vertices[face_index.pos_index - 1].normal = normals[face_index.norm_index - 1];
 				vertices[face_index.pos_index - 1].tex_coord = tex_coords[face_index.tex_index - 1];
 			}
@@ -238,6 +249,15 @@ bool Mesh::init(const std::string& p_filename)
             return rizen_error("invalid line format error: " + filename);
 		}
 	}
+	
+	// set mesh height
+	m_height = max - min;	
+
+	#ifdef LOADING_INFO
+	std::cout << "min: " << min << " | ";
+	std::cout << "max: " << max << " | ";
+	std::cout << "height: " << m_height << "\n";
+	#endif
 
     // There is 3 indices in a triangle
     m_num_indices = list_indices.size();

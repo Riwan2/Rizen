@@ -4,6 +4,7 @@
 #include "input.h"
 #include "../opengl/opengl_2d.h"
 #include "../opengl/renderer.h"
+#include "../utils/rizen_math.h"
 
 //#define APP_DEBUG
 

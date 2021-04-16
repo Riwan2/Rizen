@@ -1,19 +1,245 @@
 #include "map.h"
 
-Map::~Map()
+/*
+    Height Map
+*/
+
+HeightMap::~HeightMap()
 {
-    delete m_mesh;
-    delete m_model;
+    delete[] m_heights;
 }
 
-void Map::init(Material* material)
+void HeightMap::init(const glm::vec2& size)
 {
-    m_size = glm::vec2(20, 20);
-    m_resolution = glm::vec2(3, 3);
-    m_position = glm::vec2(-10, 0);
+    m_size = size;
+    m_num_heights = m_size.x * m_size.y;
+    m_heights = new float[m_num_heights];
 
+    for (int y = 0; y < m_size.y; y++) {
+        for (int x = 0; x < m_size.x; x++) {
+            int index = y * m_size.x + x;
+            m_heights[index] = 0;
+        }
+    }
+}
+
+void HeightMap::generate_random(float octave, float amplitude)
+{
+    generate_noise();
+
+    for (int y = 0; y < m_size.y; y++) {
+        for (int x = 0; x < m_size.x; x++) {
+            int index = y * m_size.x + x;
+            m_heights[index] = generate_height(x, y, octave, amplitude);
+        }
+    }
+
+    delete[] m_noises;
+}
+
+float HeightMap::get_height(int x, int y)
+{
+    if (x < 0 || x > m_size.x || y < 0 || y > m_size.y) return 0;
+    int index = y * m_size.x + x;
+    return m_heights[index];
+}
+
+/*
+    Noise
+*/
+
+void HeightMap::generate_noise()
+{
+    m_noises = new float[m_num_heights];
+    for (int i = 0; i < m_num_heights; i++)
+        m_noises[i] = rand_float(0, 1);
+}
+
+float HeightMap::generate_height(int x, int y, float octave, float amplitude)
+{
+    return interpolated_noise(x / octave, y / octave) * amplitude - amplitude / 2;
+}
+
+float HeightMap::interpolated_noise(float x, float y)
+{
+    int int_x = int(x);
+    int int_y = int(y);
+    float frac_x = x - int_x;
+    float frac_y = y - int_y;
+
+    float v1 = smooth(int_x, int_y);
+    float v2 = smooth(int_x + 1, int_y);
+    float v3 = smooth(int_x, int_y + 1);
+    float v4 = smooth(int_x + 1, int_y + 1);
+    float i1 = interpolate(v1, v2, frac_x);
+    float i2 = interpolate(v3, v4, frac_x);
+
+    return interpolate(i1, i2, frac_y);
+}
+
+float HeightMap::smooth(int x, int y) {
+    float corners = (get_noise(x - 1, y - 1) + get_noise(x + 1, y - 1) 
+                    + get_noise(x - 1, y + 1) + get_noise(x + 1, y + 1)) / 16.0f;
+    float sides = (get_noise(x - 1, y) + get_noise(x + 1, y) 
+                    + get_noise(x, y - 1) + get_noise(x, y + 1)) / 8.0f;
+    float center = get_noise(x, y) / 4.0f;
+    return corners + sides + center;
+}
+
+float HeightMap::interpolate(float a, float b, float blend) 
+{
+    double theta = blend * PI;
+    float f = (float)(1 - cos(theta)) * 0.5;
+    return a * (1 - f) + b * f;
+}
+
+float HeightMap::get_noise(int x, int y)
+{
+    if (x < 0 || x > m_size.x || y < 0 || y > m_size.y) return 0;
+    int index = y * m_size.x + x;
+    return m_noises[index];
+}
+
+/*
+    Map
+*/
+
+Map::~Map()
+{
+    delete m_height_map;
+    delete m_mesh;
+    delete m_render_model;
+}
+
+void Map::init(Material* material, const glm::vec2& size, const glm::vec2& resolution, const glm::vec3& position)
+{
+    m_size = size;
+    m_resolution = resolution;
+    set_position(position);
+    ////set_position(glm::vec3(-m_size.x / 2, -10, -m_size.y / 2));
     m_vertices_distance = m_size / (m_resolution - glm::vec2(1.0));
 
+    m_height_map = new HeightMap();
+    m_height_map->init(m_resolution);
+
+    load_mesh();
+
+    m_render_model = new Model();
+    m_render_model->init(m_mesh, material);   
+}
+
+void Map::generate_random_heightmap(float octave, float amplitude)
+{
+    delete m_mesh;
+    m_octave = octave;
+    m_amplitude = amplitude;
+    m_height_map->generate_random(octave, amplitude);
+    load_mesh();
+    m_render_model->set_mesh(m_mesh);
+}
+
+void Map::reset_random()
+{
+    generate_random_heightmap(m_octave, m_amplitude);
+}
+
+void Map::render(Renderer* renderer)
+{
+    glDisable(GL_CULL_FACE);
+    renderer->render(m_render_model, m_model);
+    glEnable(GL_CULL_FACE);
+}
+
+float Map::get_heigth(const glm::vec2& world_pos)
+{
+    glm::vec2 map_pos = world_pos - glm::vec2(m_position.x, m_position.z);
+    if (map_pos.x < 0 || map_pos.y < 0 || map_pos.x > m_size.x || map_pos.y > m_size.y)
+        return 0;
+
+    glm::vec2 grid_pos;
+    grid_pos.x = floor(map_pos.x / m_vertices_distance.x);
+    grid_pos.y = floor(map_pos.y / m_vertices_distance.y);
+
+    glm::vec2 quad_pos;
+    quad_pos.x = fmod(map_pos.x, m_vertices_distance.x) / m_vertices_distance.x;
+    quad_pos.y = fmod(map_pos.y, m_vertices_distance.y) / m_vertices_distance.y;
+
+    if (quad_pos.x < 1 - quad_pos.y) {
+        // top left triangle
+        return barry_centric_height(
+            glm::vec3(0, get_heightmap(grid_pos.x, grid_pos.y), 0),
+            glm::vec3(1, get_heightmap(grid_pos.x + 1, grid_pos.y), 0),
+            glm::vec3(0, get_heightmap(grid_pos.x, grid_pos.y + 1), 1),
+            quad_pos
+        ) + m_position.y;
+
+    } else {
+        // bot right triangle
+        return barry_centric_height(
+            glm::vec3(1, get_heightmap(grid_pos.x + 1, grid_pos.y), 0),
+            glm::vec3(0, get_heightmap(grid_pos.x, grid_pos.y + 1), 1),
+            glm::vec3(1, get_heightmap(grid_pos.x + 1, grid_pos.y + 1), 1),
+            quad_pos
+        ) + m_position.y;
+    }
+
+    return 0;
+}
+
+glm::vec3 Map::get_fast_normal(const glm::vec2& world_pos)
+{
+    // Fast but not precise normal
+    glm::vec2 map_pos = world_pos - glm::vec2(m_position.x, m_position.z);
+    if (map_pos.x < 0 || map_pos.y < 0 || map_pos.x > m_size.x || map_pos.y > m_size.y)
+        return glm::vec3(0, 1, 0);
+
+    glm::vec2 grid_pos;
+    grid_pos.x = floor(map_pos.x / m_vertices_distance.x);
+    grid_pos.y = floor(map_pos.y / m_vertices_distance.y);
+
+    float v1, v2, v3, v4;
+    float offset = 1.0f;
+    v1 = get_heightmap(grid_pos.x - 1, grid_pos.y);
+    v2 = get_heightmap(grid_pos.x + 1, grid_pos.y);
+    v3 = get_heightmap(grid_pos.x, grid_pos.y - 1);
+    v4 = get_heightmap(grid_pos.x, grid_pos.y + 1);
+
+    glm::vec3 normal = glm::vec3(v1 - v2, 2.0, v3 - v4);
+    return glm::normalize(normal);
+}
+
+glm::vec3 Map::get_precise_normal(const glm::vec2& world_pos, float offset)
+{
+    // TODO: lot of fmod operation bc of get_height move all the info in this function
+    // really precise normal
+    float v1, v2, v3, v4;
+    glm::vec2 h_offset = glm::vec2(offset, 0);
+    glm::vec2 v_offset = glm::vec2(0, offset);
+
+    v1 = get_heigth(world_pos - h_offset);
+    v2 = get_heigth(world_pos + h_offset);
+    v3 = get_heigth(world_pos - v_offset);
+    v4 = get_heigth(world_pos + v_offset);
+
+    glm::vec3 normal = glm::vec3(v1 - v2, 2.0, v3 - v4);
+    return glm::normalize(normal);
+}
+
+void Map::set_position(const glm::vec3& position)
+{
+    m_position = position;
+    update_model();
+}
+
+void Map::move_position(const glm::vec3& position)
+{
+    m_position += position;
+    update_model();
+}
+
+
+void Map::load_mesh()
+{
     int num_vertices = m_resolution.x * m_resolution.y;
     // 2 triangles per quad
     int num_triangle_indices = (m_resolution.x - 1) * (m_resolution.y - 1) * 2;
@@ -22,18 +248,18 @@ void Map::init(Material* material)
     TriangleIndex* triangle_indices = new TriangleIndex[num_triangle_indices];
 
     int triangle_index = 0;
-
     for (int y = 0; y < m_resolution.y; y++) {
         for (int x = 0; x < m_resolution.x; x++) {
             int index = y * m_resolution.x + x;
 
-            vertices[index].pos.x = m_position.x + m_vertices_distance.x * x;
-            vertices[index].pos.y = 0;
-            vertices[index].pos.z = m_position.y + m_vertices_distance.y * y;
+            vertices[index].pos.x = m_vertices_distance.x * x;
+            vertices[index].pos.y = get_heightmap(x, y);
+            vertices[index].pos.z = m_vertices_distance.y * y;
 
-            vertices[index].normal.x = 0;
-            vertices[index].normal.y = 0;
-            vertices[index].normal.z = 0;
+            glm::vec3 normal = calculate_normal(x, y);
+            vertices[index].normal.x = normal.x;
+            vertices[index].normal.y = normal.y;
+            vertices[index].normal.z = normal.z;
 
             vertices[index].tex_coord.x = (1 / m_resolution.x) * x;
             vertices[index].tex_coord.y = (1 / m_resolution.y) * y;
@@ -47,7 +273,7 @@ void Map::init(Material* material)
                 triangle_indices[triangle_index].index1 = top_right;
                 triangle_indices[triangle_index].index2 = top_left;
                 triangle_indices[triangle_index].index3 = bot_left;
-                
+
                 triangle_index++;
 
                 triangle_indices[triangle_index].index1 = bot_left;
@@ -60,19 +286,30 @@ void Map::init(Material* material)
     }
 
     m_mesh = new Mesh();
-
     m_mesh->init(vertices, num_vertices, triangle_indices, num_triangle_indices);
 
-    m_model = new Model();
-    m_model->init(m_mesh, material);
-
     delete[] vertices;
-    delete[] triangle_indices;    
+    delete[] triangle_indices; 
 }
 
-// void Map::render(Shader* shader)
-// {
-//     glDisable(GL_CULL_FACE);
-//     m_mesh->render();
-//     glEnable(GL_CULL_FACE);
-// }
+float Map::get_heightmap(int x, int y)
+{
+    return m_height_map->get_height(x, y);
+}
+
+glm::vec3 Map::calculate_normal(float x, float y)
+{
+    float v1, v2, v3, v4;
+    v1 = m_height_map->get_height(x - 1, y);
+    v2 = m_height_map->get_height(x + 1, y);
+    v3 = m_height_map->get_height(x, y - 1);
+    v4 = m_height_map->get_height(x, y + 1);
+    glm::vec3 normal = glm::vec3(v1 - v2, 2.0, v3 - v4);
+    return glm::normalize(normal);
+}
+
+void Map::update_model()
+{
+    m_model = glm::mat4(1.0);
+    m_model = glm::translate(m_model, m_position);
+}

@@ -1,10 +1,15 @@
 #include "input_move_system.h"
 
-void InputMoveSystem::update(entt::registry& registry)
+void InputMoveSystem::update(entt::registry& registry, Map* map)
 {
     auto group = registry.group<TransformComponent, RenderComponent, MoveComponent, InputMoveComponent>();
 
     for (auto [entity, transform, render, move, player_move] : group.each()) {
+
+        float map_height = map->get_heigth(glm::vec2(transform.position().x, transform.position().z));
+        float height = render.model->mesh()->height() * transform.scale().y;
+        transform.set_position_y(map_height + height / 2 - 0.5);
+
         // move rotation with input and rotate model with the rotation
         update_rotation(&move, &player_move, &transform);
         // move position with input
@@ -15,6 +20,12 @@ void InputMoveSystem::update(entt::registry& registry)
         update_movement(&move, &player_move, &transform);
         // rotate the model facing the direction + rotation
         visual_rotation(&move, &player_move, &transform);
+
+        glm::vec3 map_normal;
+        //map_normal = map->get_fast_normal(glm::vec2(transform.position().x, transform.position().z));
+        //transform.set_up(lerp(transform.up(), map_normal, 0.1));
+        map_normal = map->get_precise_normal(glm::vec2(transform.position().x, transform.position().z));
+        transform.set_up(map_normal);
     }
 }
 

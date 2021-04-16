@@ -47,6 +47,9 @@ bool App::init(const AppInfo& info)
 
     // init input
     Input::init(glm::vec2(info.size_x, info.size_y));
+    
+    // init math
+    init_random();
 
     // init renderer2D
     m_renderer_2d = new Renderer2D();

@@ -46,11 +46,13 @@ public:
     void render_instanced(int num_entities);
 
     const GLuint vao() const { return m_vao; }
+    const int height() const { return m_height; }
     
 private:
     GLuint m_vao;
     int m_num_vertices;
     int m_num_indices;
+    int m_height = 0;
 };
 
 /*
@@ -99,6 +101,8 @@ public:
 
     void init(Mesh* mesh, Material* material);
     void init_instanced(Mesh* mesh, Material* material);
+
+    void set_mesh(Mesh* mesh) { m_mesh = mesh; }
 
     Mesh* mesh() const { return m_mesh; }
     Material* material() const { return m_material; }

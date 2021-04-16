@@ -9,10 +9,9 @@ void MoveSystem::update(entt::registry& registry)
             transform.set_rotation(move.rotation);
             transform.move_position(move.velocity * (float)Time::game_delta());
         }
-
-        move.quat = glm::angleAxis(glm::radians(move.visual_rotation.y), glm::vec3(0, 1, 0));
-        move.quat *= glm::angleAxis(glm::radians(-move.visual_rotation.x), glm::vec3(1, 0, 0));
-        move.quat *= glm::angleAxis(glm::radians(move.visual_rotation.z), glm::vec3(0, 0, 1));
-        transform.set_quat(move.quat);
+        glm::quat quat = glm::angleAxis(glm::radians(move.visual_rotation.y), glm::vec3(0, 1, 0));
+        quat *= glm::angleAxis(glm::radians(-move.visual_rotation.x), glm::vec3(1, 0, 0));
+        quat *= glm::angleAxis(glm::radians(move.visual_rotation.z), glm::vec3(0, 0, 1));
+        transform.set_quat(quat);
     }
 }

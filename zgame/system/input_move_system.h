@@ -6,6 +6,8 @@
 #include "../component/input_move_comp.h"
 #include "../component/render_comp.h"
 
+#include "../../rizen/world/map.h"
+
 #include "../../rizen/utils/rizen_time.h"
 #include "../../rizen/app/input.h"
 
@@ -14,7 +16,7 @@
 class InputMoveSystem {
 public:
     InputMoveSystem();
-    void update(entt::registry& registry);
+    void update(entt::registry& registry, Map* map);
 private:
     void update_direction(MoveComponent* move, InputMoveComponent* input_move);
     void update_rotation(MoveComponent* move, InputMoveComponent* input_move, TransformComponent* transform);

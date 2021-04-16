@@ -18,7 +18,7 @@ Texture texture;
 
 // Model
 Mesh cube, dragon;
-Material material, material2, material_dragon;
+Material material, material2, material_dragon, material_map;
 Model model, model2, model_dragon;
 
 // System
@@ -102,7 +102,17 @@ void init(App* app)
     material_dragon.set_ambient(1.0);
     app->renderer()->bind_ubo(&material_dragon);
 
-    map.init(&material_dragon);
+    material_map.init(&basic_shader);
+    material_map.set_color(glm::vec4(0.3, 0.9, 0.4, 1.0));
+    material_map.set_ambient(0.5);
+    app->renderer()->bind_ubo(&material_map);
+
+    /*
+        Map
+    */
+
+    map.init(&material_map, glm::vec2(100), glm::vec2(50), glm::vec3(-50, 0, -50));
+    map.generate_random_heightmap(10, 100);
 
     /*
         Model
@@ -149,6 +159,8 @@ void init(App* app)
         auto entity = registry.create();
         {
             registry.emplace<RenderComponent>(entity, RenderComponent(&model2));
+            //registry.emplace<MoveComponent>(entity);
+            //registry.emplace<InputMoveComponent>(entity);
             TransformComponent* transform = &registry.emplace<TransformComponent>(entity, TransformComponent());
             transform->set_scale(glm::vec3(0.2));
 
@@ -177,8 +189,12 @@ void update(App* app)
         camera_tps.resize(d_size);
     }
 
+    // reset map
+    if (Input::key_pressed(SDLK_RETURN))
+        map.reset_random();
+
     // update system
-    input_move_system.update(registry);
+    input_move_system.update(registry, &map);
     move_system.update(registry);
 
     // update camera
@@ -193,15 +209,37 @@ void update(App* app)
         camera_tps.set_target(player_trans->position());
     }
 
+    if (Input::key_down(SDLK_UP))
+        camera_tps.move_angle_y(0.5 * Time::game_delta());
+
+
     // set camera angle y with the controller
-    float controller_y = Input::right_controller_axis().y * Time::game_delta();
+        float controller_y = Input::right_controller_axis().y * Time::game_delta();
 
     if (controller_y > 0 && camera_tps.angle_y() < 50)
-        camera_tps.move_angle_y(controller_y);
-    else if (controller_y < 0 && camera_tps.angle_y() > 20)
-        camera_tps.move_angle_y(controller_y);
+            camera_tps.move_angle_y(controller_y);
 
     camera_tps.update();
+
+    glm::vec3 cam_pos = camera_tps.position();
+    float map_h = map.get_heigth(glm::vec2(cam_pos.x, cam_pos.z));
+    
+    if (cam_pos.y <= map_h + 2) {
+        camera_tps.move_angle_y(0.5);
+        cam_pos.y = map_h + 2;
+
+    } else {
+        
+        if (Input::key_down(SDLK_DOWN))
+            camera_tps.move_angle_y(-0.5 * Time::game_delta());
+
+        if (controller_y < 0 && camera_tps.angle_y() > 20)
+            camera_tps.move_angle_y(controller_y);
+    }
+
+    camera_tps.set_position(cam_pos);
+    camera_tps.update_view();
+    
 
     // // render 3D objects
     frame_buffer.bind();
@@ -210,17 +248,11 @@ void update(App* app)
     app->clear(glm::vec4(0.4));
     
     render_system.render(app->renderer(), registry);
-
-    glDisable(GL_CULL_FACE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    app->renderer()->render(map.model(), glm::mat4(1.0));
-    glEnable(GL_CULL_FACE);
+    map.render(app->renderer());
 
     app->renderer()->end();
     frame_buffer.unbind();
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
     // // render frame buffer
     app->renderer_2d()->begin(Input::display_size(), &basic_shader2D);
     app->renderer_2d()->render_square(fbuffer_square, frame_buffer.texture());
