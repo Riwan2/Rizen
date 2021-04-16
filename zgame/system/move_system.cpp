@@ -2,7 +2,7 @@
 
 void MoveSystem::update(entt::registry& registry)
 {
-    auto group = registry.group(entt::get<TransformComponent, RenderComponent, MoveComponent>);
+    auto group = registry.group<TransformComponent, RenderComponent, MoveComponent>();
     
     for (auto [entity, transform, render, move] : group.each()) {
         if (glm::length(move.velocity) > 0) {

@@ -7,43 +7,14 @@
 #define MATRICES_SIZE 64
 #define MATRICES_INDEX 0
 
-void RenderSystem::init()
+void RenderSystem::render(Renderer* renderer, entt::registry& registry)
 {
-    set_ubo();
-}
-
-void RenderSystem::set_ubo()
-{
-    glGenBuffers(1, &m_ubo);
-    glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
-    glBufferData(GL_UNIFORM_BUFFER, MATRICES_SIZE, NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    
-    glBindBufferRange(GL_UNIFORM_BUFFER, MATRICES_INDEX, m_ubo, 0, MATRICES_SIZE);
-}
-
-void RenderSystem::bind_ubo(Material* material)
-{
-    Shader* shader = material->shader();
-    GLuint index = glGetUniformBlockIndex(shader->program_id(), "Matrices");
-	glUniformBlockBinding(shader->program_id(), index, MATRICES_INDEX);
-}
-
-
-void RenderSystem::render(Camera* camera, entt::registry& registry)
-{
-    begin(camera);
     auto group = registry.group<TransformComponent, RenderComponent>();
 
     for (auto [entity, transform, renderable] : group.each()) {
 
         Model* model = renderable.model;
         auto pair = m_render_map.find(model);
-
-        // float rnd = rand_float(0.3, 0.7);
-        // float rot = Time::game_delta() * rnd;
-        // transform.move_rotation(glm::vec3(cos(rot), rnd * 10, sin(rot)));
-        // transform.update();
 
         transform.update();
 
@@ -70,41 +41,24 @@ void RenderSystem::render(Camera* camera, entt::registry& registry)
             texture->bind();
 
         if (!model->instanced())
-            render(model, batch);
+            render(renderer, model, batch);
         else
-            render_instanced(model, batch);
+            render_instanced(renderer, model, batch);
     }
 
-    end();
-}
-
-void RenderSystem::begin(Camera* camera)
-{
-    glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-    glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->projection_view()));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-
-void RenderSystem::end()
-{
     m_render_map.clear();
-    glDisable(GL_DEPTH_TEST);
 }
 
-void RenderSystem::render(Model* model, std::queue<TransformComponent*>& batch)
+void RenderSystem::render(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch)
 {
      while (!batch.empty()) {
         auto transform = batch.front();
-        model->material()->shader()->set_mat4("model", transform->model());
-        model->mesh()->render();
+        renderer->simple_render(model, transform->model());
         batch.pop();
     }
 }
 
-void RenderSystem::render_instanced(Model* model, std::queue<TransformComponent*>& batch)
+void RenderSystem::render_instanced(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch)
 {
     int num_entities = batch.size();
 
@@ -115,10 +69,6 @@ void RenderSystem::render_instanced(Model* model, std::queue<TransformComponent*
         batch.pop();
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, model->instanced_vbo());
-    glBufferData(GL_ARRAY_BUFFER, num_entities * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, num_entities * sizeof(glm::mat4), models);
-
-    model->mesh()->render_instanced(num_entities);
+    renderer->simple_render_instanced(model, models, num_entities);
     delete[] models;
 }

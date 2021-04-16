@@ -39,6 +39,8 @@ set(RIZEN_SOURCE_FILES
     ../rizen/opengl/texture.cpp
     ../rizen/opengl/camera.cpp
     ../rizen/opengl/model.cpp
+    ../rizen/opengl/renderer.cpp
+    ../rizen/world/map.cpp
 )
 
 add_library(rizen STATIC ${RIZEN_SOURCE_FILES})

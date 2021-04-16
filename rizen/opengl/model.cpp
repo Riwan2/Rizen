@@ -24,11 +24,7 @@ void Material::set_texture(Texture* texture)
 
 void Material::populate()
 {
-	if (textured())
-		m_shader->set_bool("textured", true);
-	else
-		m_shader->set_bool("textured", false);
-
+	m_shader->set_bool("textured", textured());	
 	m_shader->set_vec4("color", m_color);
 	m_shader->set_float("ambient", m_ambient);
 	m_shader->set_float("reflectivity", m_reflectivity);
@@ -93,7 +89,7 @@ Mesh::~Mesh()
 bool Mesh::init(Vertex* vertices, int num_vertices, TriangleIndex* indices, int num_indices)
 {
     m_num_vertices = num_vertices;
-    m_num_indices = num_indices * 3;
+    m_num_indices = num_indices;
     
     GLuint vbo, ebo;
     glGenVertexArrays(1, &m_vao);
@@ -106,7 +102,7 @@ bool Mesh::init(Vertex* vertices, int num_vertices, TriangleIndex* indices, int 
     glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices * sizeof(GLuint), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices * sizeof(TriangleIndex), indices, GL_STATIC_DRAW);
 
     // position
     glEnableVertexAttribArray(0);
@@ -124,6 +120,7 @@ bool Mesh::init(Vertex* vertices, int num_vertices, TriangleIndex* indices, int 
 
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ebo);
+
     return true;
 }
 
@@ -264,13 +261,13 @@ bool Mesh::init(const std::string& p_filename)
 void Mesh::render()
 {
     glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, m_num_indices * 3, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
 void Mesh::render_instanced(int num_entities)
 {
     glBindVertexArray(m_vao);
-    glDrawElementsInstanced(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_INT, 0, num_entities);
+    glDrawElementsInstanced(GL_TRIANGLES, m_num_indices * 3, GL_UNSIGNED_INT, 0, num_entities);
     glBindVertexArray(0);
 }

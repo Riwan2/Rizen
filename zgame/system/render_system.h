@@ -7,6 +7,8 @@
 #include "../../rizen/opengl/camera.h"
 #include "../../rizen/utils/rizen_time.h"
 
+#include "../../rizen/opengl/renderer.h"
+
 #include "../../extern/entt/entity/registry.hpp"
 
 #include <queue>
@@ -14,21 +16,14 @@
 
 class RenderSystem {
 public:
-    void init();
-    void render(Camera* camera, entt::registry& registry);
-
-    void bind_ubo(Material* material);
+    void render(Renderer* renderer, entt::registry& registry);
 
 private:
     GLuint m_ubo;
     std::unordered_map<Model*, std::queue<TransformComponent*>> m_render_map;
 
-    void set_ubo();
-    void begin(Camera* camera);
-    void end();
-
-    void render(Model* model, std::queue<TransformComponent*>& batch);
-    void render_instanced(Model* model, std::queue<TransformComponent*>& batch);
+    void render(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch);
+    void render_instanced(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch);
 };
 
 #endif //RENDER_SYSTEM_H

@@ -32,6 +32,9 @@ entt::registry registry;
 // Entity
 entt::entity player;
 
+// Map
+Map map;
+
 /*
     init
 */
@@ -55,8 +58,6 @@ void init(App* app)
     /*
         System
     */
-
-   render_system.init();
 
     /*
         Shader
@@ -89,17 +90,19 @@ void init(App* app)
     material.set_reflectivity(1.0);
     material.set_shine_damper(4);
     material.set_texture(&texture);
-    render_system.bind_ubo(&material);
+    app->renderer()->bind_ubo(&material);
 
     material2.init(&basic_inst_shader);
     material2.set_color(glm::vec4(0, 0, 1, 0));
     material2.set_ambient(0.5);
-    render_system.bind_ubo(&material2);
+    app->renderer()->bind_ubo(&material2);
 
     material_dragon.init(&basic_shader);
     material_dragon.set_color(glm::vec4(0.7, 0.9, 0.3, 1.0));
     material_dragon.set_ambient(1.0);
-    render_system.bind_ubo(&material_dragon);
+    app->renderer()->bind_ubo(&material_dragon);
+
+    map.init(&material_dragon);
 
     /*
         Model
@@ -129,9 +132,10 @@ void init(App* app)
         auto entity = registry.create();
         {
             registry.emplace<RenderComponent>(entity, RenderComponent(&model));
-            //registry.emplace<MoveComponent>(entity, MoveComponent());
+            auto move = &registry.emplace<MoveComponent>(entity, MoveComponent());
             auto transform = &registry.emplace<TransformComponent>(entity, TransformComponent());
 
+            move->visual_rotation = glm::vec3(90, 90, 230);
             transform->set_scale(glm::vec3(0.5));
 
             int x = i % 10;
@@ -172,7 +176,7 @@ void update(App* app)
         fbuffer_square.update_transform();
         camera_tps.resize(d_size);
     }
-    
+
     // update system
     input_move_system.update(registry);
     move_system.update(registry);
@@ -188,7 +192,7 @@ void update(App* app)
     if (player_trans) {
         camera_tps.set_target(player_trans->position());
     }
-    
+
     // set camera angle y with the controller
     float controller_y = Input::right_controller_axis().y * Time::game_delta();
 
@@ -201,9 +205,21 @@ void update(App* app)
 
     // // render 3D objects
     frame_buffer.bind();
-    app->clear(glm::vec4(0.1));
-    render_system.render(&camera_tps, registry);
+
+    app->renderer()->begin(&camera_tps);
+    app->clear(glm::vec4(0.4));
+    
+    render_system.render(app->renderer(), registry);
+
+    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    app->renderer()->render(map.model(), glm::mat4(1.0));
+    glEnable(GL_CULL_FACE);
+
+    app->renderer()->end();
     frame_buffer.unbind();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
     // // render frame buffer
     app->renderer_2d()->begin(Input::display_size(), &basic_shader2D);

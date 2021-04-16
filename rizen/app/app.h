@@ -3,6 +3,7 @@
 
 #include "input.h"
 #include "../opengl/opengl_2d.h"
+#include "../opengl/renderer.h"
 
 //#define APP_DEBUG
 
@@ -25,7 +26,7 @@ public:
     void begin();
     void end();
     
-    //Renderer* renderer() const { return m_renderer; }
+    Renderer* renderer() const { return m_renderer; }
     Renderer2D* renderer_2d() const { return m_renderer_2d; }
     
     bool on_quit() {
@@ -36,7 +37,7 @@ private:
     SDL_Window* m_window;
     SDL_GLContext m_gl_context;
     Renderer2D* m_renderer_2d;
-    //Renderer* m_renderer;
+    Renderer* m_renderer;
 };
 
 #endif //APP_H

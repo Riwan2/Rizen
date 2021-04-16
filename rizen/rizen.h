@@ -5,6 +5,6 @@
 #include "utils/rizen_math.h"
 #include "opengl/camera.h"
 #include "opengl/model.h"
-//#include "opengl/renderer.h"
+#include "world/map.h"
 
 #endif //RIZEN_H
