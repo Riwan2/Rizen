@@ -14,6 +14,14 @@
 #include <queue>
 #include <unordered_map>
 
+static entt::entity renderable_blueprint(entt::registry& registry, Model* model)
+{
+    entt::entity entity = registry.create();
+    registry.emplace<RenderComponent>(entity, model);
+    registry.emplace<TransformComponent>(entity);
+    return entity;
+}
+
 class RenderSystem {
 public:
     void render(Renderer* renderer, entt::registry& registry);

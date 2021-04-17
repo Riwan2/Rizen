@@ -11,6 +11,24 @@
 
 #include "../../extern/entt/entity/registry.hpp"
 
+/*
+    Blueprint
+*/
+
+static entt::entity bounce_blueprint(entt::registry& registry, Model* model)
+{
+    entt::entity entity = registry.create();
+    registry.emplace<TransformComponent>(entity);
+    registry.emplace<RenderComponent>(entity, model);
+    registry.emplace<MoveComponent>(entity);
+    registry.emplace<BounceComponent>(entity);
+    return entity;
+}
+
+/*
+    System
+*/
+
 class BounceSystem {
 public:
     void update(entt::registry& registry, Map* map);

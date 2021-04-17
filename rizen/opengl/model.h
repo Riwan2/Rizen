@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "../utils/log.h"
+#include "../utils/rizen_time.h"
 #include "shader.h"
 #include "texture.h"
 

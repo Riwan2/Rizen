@@ -1,5 +1,9 @@
 #include "bounce_system.h"
 
+/*
+    Bounce system
+*/
+
 void BounceSystem::update(entt::registry& registry, Map* map)
 {
     auto group = registry.group<TransformComponent, RenderComponent, MoveComponent, BounceComponent>();
@@ -32,6 +36,6 @@ void BounceSystem::make_bounce(MoveComponent* move, BounceComponent* bounce, Tra
     float bounce_speed = 100 / bounce->bounce_speed;
     float time = cos((Time::time() + bounce->offset) / bounce_speed) * 0.5 + 0.5;
     float height = map->get_heigth(glm::vec2(transform->position().x, transform->position().z));
-    float y = time * bounce->max_height + height + (render->model->mesh()->height() * transform->scale().y) * 0.35f;
+    float y = time * bounce->max_height + height + (render->model->mesh()->height() * transform->scale().y) * 0.5f;
     transform->set_position_y(y);
 }

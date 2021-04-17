@@ -1,0 +1,29 @@
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNorm;
+layout (location = 2) in vec2 aTexCoord;
+
+layout (std140) uniform Matrices {
+	mat4 projection_view;	// 16
+							// 16
+							// 16
+							// 16
+};
+
+uniform mat4 model;
+
+out VS_OUT {
+	vec3 frag_pos;
+	vec3 normal;
+	vec2 tex_coord;
+} vs_out;
+
+void main()
+{
+	gl_Position = projection_view * model * vec4(aPos, 1.0);
+	
+	vs_out.frag_pos = vec3(model * vec4(aPos, 1.0));
+	vs_out.normal = mat3(transpose(inverse(model))) * aNorm;
+	vs_out.tex_coord = aTexCoord;
+}

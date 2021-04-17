@@ -29,6 +29,7 @@ void Material::populate()
 	m_shader->set_float("ambient", m_ambient);
 	m_shader->set_float("reflectivity", m_reflectivity);
 	m_shader->set_float("shine_damper", m_shine_damper);
+	m_shader->set_float("u_time", Time::time_sec());
 }
 
 /*

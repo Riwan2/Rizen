@@ -13,8 +13,8 @@ Square fbuffer_square;
 
 // 3D
 CameraTPS camera_tps;
-Shader basic_shader, basic_inst_shader;
-Texture texture;
+Shader basic_shader, basic_inst_shader, map_shader;
+Texture texture, map_texture;
 
 // Model
 Mesh cube, dragon;
@@ -67,12 +67,14 @@ void init(App* app)
     basic_shader2D.init("2d/basic.vr", "2d/basic.fa");
     basic_shader.init("basic.vr", "basic.fa");
     basic_inst_shader.init("inst_basic.vr", "inst_basic.fa");
+    map_shader.init("terrain/map.vr", "terrain/map.fa");
     
     /*
         Texture
     */
 
     texture.init_jpg("noise.jpg");
+    map_texture.init_jpg("garden.jpg");
 
     /*
         Mesh
@@ -103,17 +105,19 @@ void init(App* app)
     material_dragon.set_ambient(1.0);
     app->renderer()->bind_ubo(&material_dragon);
 
-    material_map.init(&basic_shader);
+    material_map.init(&map_shader);
     material_map.set_color(glm::vec4(0.3, 0.9, 0.4, 1.0));
     material_map.set_ambient(0.5);
+    material_map.set_texture(&map_texture);
     app->renderer()->bind_ubo(&material_map);
 
     /*
         Map
     */
-
-    map.init(&material_map, glm::vec2(500), glm::vec2(200), glm::vec3(-250, 0, -250));
-    map.generate_random_heightmap(10, 100);
+    
+    int size = 300;
+    map.init(&material_map, glm::vec2(size), glm::vec2(500), glm::vec3(-size / 2, 0, -size / 2));
+    map.generate_random_heightmap(40, 100);
 
     /*
         Model
@@ -127,25 +131,21 @@ void init(App* app)
         Entity
     */
 
-   player = registry.create();
-   {
-       registry.emplace<RenderComponent>(player, RenderComponent(&model_dragon));
-       registry.emplace<MoveComponent>(player);
-       registry.emplace<InputMoveComponent>(player);
-       auto transform = &registry.emplace<TransformComponent>(player);
+    player = input_move_blueprint(registry, &model_dragon);
+    {
+        auto transform = &registry.get<TransformComponent>(player);
        
-       transform->set_position(glm::vec3(0, 0, 10));
-       transform->set_scale(glm::vec3(1));
-       transform->update();
-   }
-
+        transform->set_position(glm::vec3(0, 0, 10));
+        transform->set_scale(glm::vec3(1));
+        transform->update();
+    }
+   
     for (int i = 0; i < 500; i++) {;
-        auto entity = registry.create();
+        auto entity = bounce_blueprint(registry, &model);
         {
-            registry.emplace<RenderComponent>(entity, RenderComponent(&model));
-            auto move = &registry.emplace<MoveComponent>(entity);
-            auto bounce = &registry.emplace<BounceComponent>(entity);
-            auto transform = &registry.emplace<TransformComponent>(entity);
+            auto move = &registry.get<MoveComponent>(entity);
+            auto bounce = &registry.get<BounceComponent>(entity);
+            auto transform = &registry.get<TransformComponent>(entity);
 
             //bounce->offset = i * 100;
             bounce->offset = rand_int(0, 1000);
@@ -174,10 +174,9 @@ void init(App* app)
     }
 
     for (int i = 0; i < 10000; i++) {
-        auto entity = registry.create();
+        auto entity = renderable_blueprint(registry, &model2);
         {
-            registry.emplace<RenderComponent>(entity, RenderComponent(&model2));
-            TransformComponent* transform = &registry.emplace<TransformComponent>(entity);
+            TransformComponent* transform = &registry.get<TransformComponent>(entity);
             transform->set_scale(glm::vec3(0.2));
 
             float x = i % 10 + rand_float(-1, 1);
@@ -206,6 +205,7 @@ void update(App* app)
     }
 
     // reset map
+
     if (Input::key_pressed(SDLK_RETURN))
         map.reset_random();
 
@@ -240,12 +240,31 @@ void update(App* app)
     //sif (controller_y > 0 && camera_tps.angle_y() < 50)
     //        camera_tps.move_angle_y(controller_y);
 
+    //glm::vec3 cam_pos = camera_tps.position();
+    //float map_h = map.get_heigth(glm::vec2(cam_pos.x, cam_pos.z));
+    
+    // if (cam_pos.y <= map_h + 2) {
+    //     float final_angle = lerp(camera_tps.angle_y(), camera_tps.angle_y() + 0.5, 0.1);
+    //     camera_tps.set_angle_y(final_angle);
+    //     cam_pos.y = map_h + 2;
+
+    // } else {
+        
+    //     if (Input::key_down(SDLK_DOWN))
+    //         camera_tps.move_angle_y(-0.5 * Time::game_delta());
+
+    //     if (controller_y < 0 && camera_tps.angle_y() > 20)
+    //         camera_tps.move_angle_y(controller_y);
+    // }
+
+    // camera_tps.set_position(cam_pos);
+    // camera_tps.update_view();
+
     /*
         Camera Movement
     */
 
     glm::vec2 mouse_scroll = Input::mouse_scroll() * (float)Time::game_delta();
-    std::cout << mouse_scroll.x << ";" << mouse_scroll.y << std::endl;
 
     static float x_speed = 0;
     x_speed = lerp(x_speed, x_speed + mouse_scroll.x, 0.3);
@@ -273,26 +292,6 @@ void update(App* app)
     }
 
     camera_tps.update();
-
-    //glm::vec3 cam_pos = camera_tps.position();
-    //float map_h = map.get_heigth(glm::vec2(cam_pos.x, cam_pos.z));
-    
-    // if (cam_pos.y <= map_h + 2) {
-    //     float final_angle = lerp(camera_tps.angle_y(), camera_tps.angle_y() + 0.5, 0.1);
-    //     camera_tps.set_angle_y(final_angle);
-    //     cam_pos.y = map_h + 2;
-
-    // } else {
-        
-    //     if (Input::key_down(SDLK_DOWN))
-    //         camera_tps.move_angle_y(-0.5 * Time::game_delta());
-
-    //     if (controller_y < 0 && camera_tps.angle_y() > 20)
-    //         camera_tps.move_angle_y(controller_y);
-    // }
-
-    // camera_tps.set_position(cam_pos);
-    // camera_tps.update_view();
     
 
     // // render 3D objects

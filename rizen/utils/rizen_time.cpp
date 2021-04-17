@@ -7,6 +7,7 @@
 std::chrono::steady_clock::time_point Time::m_time_start;
 std::chrono::steady_clock::time_point Time::m_time_current;
 double Time::m_elapsed = 0;
+double Time::m_elapsed_sec = 0;
 double Time::m_last_elapsed = 0;
 double Time::m_delta = 0;
 double Time::m_game_delta = 0;
@@ -23,8 +24,9 @@ void Time::update()
     auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(m_time_current - m_time_start);
     m_last_elapsed = m_elapsed;
     m_elapsed = elapsed_time.count();
+    m_elapsed_sec = m_elapsed / 1000.0;
     m_delta = m_elapsed - m_last_elapsed;
-    m_game_delta = m_delta / 1000.0 * 60.0;
+    m_game_delta = m_delta / 1000 * 60.0;
 }
 
 const char* Time::str_time() 

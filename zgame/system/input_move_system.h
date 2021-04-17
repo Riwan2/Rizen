@@ -13,6 +13,24 @@
 
 #include "../../extern/entt/entity/registry.hpp"
 
+/*
+    Input move blueprint
+*/
+
+static entt::entity input_move_blueprint(entt::registry& registry, Model* model)
+{
+    entt::entity entity = registry.create();
+    registry.emplace<RenderComponent>(entity, model);
+    registry.emplace<MoveComponent>(entity);
+    registry.emplace<InputMoveComponent>(entity);
+    registry.emplace<TransformComponent>(entity);
+    return entity;
+}
+
+/*
+    Input move system
+*/
+
 class InputMoveSystem {
 public:
     void update(entt::registry& registry, Map* map);

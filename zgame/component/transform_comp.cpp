@@ -6,10 +6,10 @@ void TransformComponent::update()
     if (!m_got_updated) return;
     m_model = glm::mat4(1.0);
     m_model = glm::translate(m_model, m_position);
-    m_model = glm::scale(m_model, m_scale);
     if (m_up_changed)
         m_model *= glm::toMat4(rotation_between_vector(glm::vec3(0, 1, 0), m_up));
     m_model *= glm::toMat4(m_quat);
+    m_model = glm::scale(m_model, m_scale);
     m_got_updated = false;
 }
 

@@ -14,6 +14,8 @@ public:
     static void init();
     static void update();
     static double time() { return m_elapsed; }
+    // return the time elapsed in seconds
+    static double time_sec() { return m_elapsed_sec; }
     // return delta in milliseconds
     static double delta() { return m_delta; }
     // use this for coherent movements beetween frames
@@ -24,6 +26,7 @@ private:
     static std::chrono::steady_clock::time_point m_time_start;
     static std::chrono::steady_clock::time_point m_time_current;
     static double m_elapsed;
+    static double m_elapsed_sec;
     static double m_last_elapsed;
     static double m_delta;
     static double m_game_delta;
