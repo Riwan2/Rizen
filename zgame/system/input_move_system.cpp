@@ -2,7 +2,7 @@
 
 void InputMoveSystem::update(entt::registry& registry, Map* map)
 {
-    auto group = registry.group<TransformComponent, RenderComponent, MoveComponent, InputMoveComponent>();
+    auto group = registry.group(entt::get<TransformComponent, RenderComponent, MoveComponent, InputMoveComponent>);
 
     for (auto [entity, transform, render, move, player_move] : group.each()) {
 
@@ -85,28 +85,10 @@ void InputMoveSystem::rotate_to_direction(MoveComponent* move, InputMoveComponen
     input_move->dir_rotation = lerp_degrees(input_move->dir_rotation, dir_rotation, rotation_speed - off_speed);
 }
 
-static Timer timer;
-InputMoveSystem::InputMoveSystem(){
-timer.init(200);
-}
-
 void InputMoveSystem::update_movement(MoveComponent* move, InputMoveComponent* input_move, TransformComponent* transform)
 {
     move->last_velocity = move->velocity;
-
-    if (timer.flag())
-        move->velocity += transform->quat() * glm::vec3(input_move->direction.x, 0, input_move->direction.y);
-
-    if (Input::key_pressed(SDLK_SPACE)) {
-        move->velocity += glm::angleAxis(glm::radians(input_move->dir_rotation), glm::vec3(0, 1, 0)) * glm::vec3(0, 0, -5);
-        timer.reset();
-    }
-
-    if (!timer.flag()) {
-        move->velocity.x = lerp(move->velocity.x, 0, input_move->friction);
-        move->velocity.z = lerp(move->velocity.z, 0, input_move->friction);
-        return;
-    }
+    move->velocity += transform->quat() * glm::vec3(input_move->direction.x, 0, input_move->direction.y);
 
     if (glm::length(input_move->direction) > 0) {
        float max_speed = input_move->max_speed;
@@ -125,8 +107,6 @@ void InputMoveSystem::visual_rotation(MoveComponent* move, InputMoveComponent* i
 
     float vel_force = glm::length(move->velocity);
     float last_vel_force = glm::length(move->last_velocity);
-
-    //std::cout << Time::delta() << std::endl;
 
     if (vel_force > 0 && vel_force >= last_vel_force - 0.0001)
        move->visual_rotation.x = lerp(move->visual_rotation.x, 10, 0.05);

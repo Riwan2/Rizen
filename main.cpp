@@ -25,6 +25,7 @@ Model model, model2, model_dragon;
 RenderSystem render_system;
 MoveSystem move_system;
 InputMoveSystem input_move_system;
+BounceSystem bounce_system;
 
 // ECS
 entt::registry registry;
@@ -51,7 +52,7 @@ void init(App* app)
 
     // camera
     camera_tps.init(Input::display_size());
-    camera_tps.set_distance(30);
+    camera_tps.set_distance(150);
     camera_tps.set_angle_y(30);
     camera_tps.move_target(glm::vec3(0, 8, 0));
 
@@ -111,7 +112,7 @@ void init(App* app)
         Map
     */
 
-    map.init(&material_map, glm::vec2(100), glm::vec2(50), glm::vec3(-50, 0, -50));
+    map.init(&material_map, glm::vec2(500), glm::vec2(200), glm::vec3(-250, 0, -250));
     map.generate_random_heightmap(10, 100);
 
     /*
@@ -129,28 +130,45 @@ void init(App* app)
    player = registry.create();
    {
        registry.emplace<RenderComponent>(player, RenderComponent(&model_dragon));
-       registry.emplace<MoveComponent>(player, MoveComponent());
-       registry.emplace<InputMoveComponent>(player, InputMoveComponent());
-       auto transform = &registry.emplace<TransformComponent>(player, TransformComponent());
+       registry.emplace<MoveComponent>(player);
+       registry.emplace<InputMoveComponent>(player);
+       auto transform = &registry.emplace<TransformComponent>(player);
        
        transform->set_position(glm::vec3(0, 0, 10));
        transform->set_scale(glm::vec3(1));
        transform->update();
    }
 
-    for (int i = 0; i < 100; i++) {;
+    for (int i = 0; i < 500; i++) {;
         auto entity = registry.create();
         {
             registry.emplace<RenderComponent>(entity, RenderComponent(&model));
-            auto move = &registry.emplace<MoveComponent>(entity, MoveComponent());
-            auto transform = &registry.emplace<TransformComponent>(entity, TransformComponent());
+            auto move = &registry.emplace<MoveComponent>(entity);
+            auto bounce = &registry.emplace<BounceComponent>(entity);
+            auto transform = &registry.emplace<TransformComponent>(entity);
 
-            move->visual_rotation = glm::vec3(90, 90, 230);
-            transform->set_scale(glm::vec3(0.5));
+            //bounce->offset = i * 100;
+            bounce->offset = rand_int(0, 1000);
+            bounce->bounce_speed = rand_float(0.5, 0.8);
+            bounce->speed = rand_float(0.1, 0.4);
+            bounce->direction_timer.init(500);
 
-            int x = i % 10;
-            int y = i / 10;
-            transform->set_position(glm::vec3(x * 2 - 10, y * 2, 0));
+            // transform
+            transform->set_scale(glm::vec3(0.5, 1.0, 0.5));
+
+            float radius = 50;
+
+            int x = rand_float(-radius, radius);
+            x = cos(x / radius) * x;
+            int z = rand_float(-radius, radius);
+            z = sin(z / radius) * z;
+
+            double theta = 2 * PI * rand_float(0, 1);
+            double r = sqrt(rand_float(0, 1));
+            x =  r * radius * cos(theta),
+            z =  r * radius * sin(theta);
+
+            transform->set_position(glm::vec3(x, 0, z));
             transform->update();
         }
     }
@@ -159,9 +177,7 @@ void init(App* app)
         auto entity = registry.create();
         {
             registry.emplace<RenderComponent>(entity, RenderComponent(&model2));
-            //registry.emplace<MoveComponent>(entity);
-            //registry.emplace<InputMoveComponent>(entity);
-            TransformComponent* transform = &registry.emplace<TransformComponent>(entity, TransformComponent());
+            TransformComponent* transform = &registry.emplace<TransformComponent>(entity);
             transform->set_scale(glm::vec3(0.2));
 
             float x = i % 10 + rand_float(-1, 1);
@@ -194,8 +210,12 @@ void update(App* app)
         map.reset_random();
 
     // update system
+    bounce_system.update(registry, &map);
     input_move_system.update(registry, &map);
     move_system.update(registry);
+
+    // fps
+    //std::cout << 1 / Time::delta() * 1000 << "\n";
 
     // update camera
     //camera_tps.move_angle_around(0.1 * Time::game_delta());
@@ -225,7 +245,8 @@ void update(App* app)
     float map_h = map.get_heigth(glm::vec2(cam_pos.x, cam_pos.z));
     
     if (cam_pos.y <= map_h + 2) {
-        camera_tps.move_angle_y(0.5);
+        float final_angle = lerp(camera_tps.angle_y(), camera_tps.angle_y() + 0.5, 0.1);
+        camera_tps.set_angle_y(final_angle);
         cam_pos.y = map_h + 2;
 
     } else {

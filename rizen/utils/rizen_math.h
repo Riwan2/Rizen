@@ -16,7 +16,7 @@
     Random
 */
 
-const double PI = 3.141593f;
+const double PI = 3.14159265358979323846264f;
 extern long seed;
 
 void init_random();

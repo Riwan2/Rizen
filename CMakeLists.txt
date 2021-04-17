@@ -20,9 +20,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMAKE")
 # source files
 set(SOURCE_FILES 
     main.cpp
+    zgame/component/transform_comp.cpp
     zgame/system/render_system.cpp
     zgame/system/move_system.cpp
     zgame/system/input_move_system.cpp
+    zgame/system/bounce_system.cpp
 )
 
 message("")

@@ -15,7 +15,6 @@
 
 class InputMoveSystem {
 public:
-    InputMoveSystem();
     void update(entt::registry& registry, Map* map);
 private:
     void update_direction(MoveComponent* move, InputMoveComponent* input_move);
