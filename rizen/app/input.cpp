@@ -44,6 +44,9 @@ void Input::update(SDL_Window* window)
     window_event(window);
 
     m_resized = false;
+    m_mouse_scroll = glm::vec2(0, 0);
+    m_last_mouse_scroll = glm::vec2(0, 0);
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         Input::process_event(&event);
@@ -51,9 +54,6 @@ void Input::update(SDL_Window* window)
 
     memcpy(m_last_keystates, m_keystates, sizeof(Uint8) * SDL_NUM_SCANCODES);
     memcpy(m_keystates, SDL_GetKeyboardState(NULL), sizeof(Uint8) * SDL_NUM_SCANCODES);
-
-    m_mouse_scroll = glm::vec2(0, 0);
-    m_last_mouse_scroll = glm::vec2(0, 0);
 
     update_controller();
 }

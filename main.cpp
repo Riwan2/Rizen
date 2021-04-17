@@ -219,47 +219,80 @@ void update(App* app)
 
     // update camera
     //camera_tps.move_angle_around(0.1 * Time::game_delta());
-    auto player_trans = registry.try_get<TransformComponent>(player);
-    auto player_move = registry.try_get<InputMoveComponent>(player);
+    
+    //auto player_trans = registry.try_get<TransformComponent>(player);
+    //auto player_move = registry.try_get<InputMoveComponent>(player);
 
-    if (player_move) {
-        camera_tps.set_angle_around(-player_move->get_rotation() + 90);
-    }
-    if (player_trans) {
-        camera_tps.set_target(player_trans->position());
-    }
+    //if (player_move) {
+    //    camera_tps.set_angle_around(-player_move->get_rotation() + 90);
+    //}
+    //if (player_trans) {
+    //    camera_tps.set_target(player_trans->position());
+    //}
 
-    if (Input::key_down(SDLK_UP))
-        camera_tps.move_angle_y(0.5 * Time::game_delta());
+    //if (Input::key_down(SDLK_UP))
+    //    camera_tps.move_angle_y(0.5 * Time::game_delta());
 
 
     // set camera angle y with the controller
-        float controller_y = Input::right_controller_axis().y * Time::game_delta();
+    //float controller_y = Input::right_controller_axis().y * Time::game_delta();
 
-    if (controller_y > 0 && camera_tps.angle_y() < 50)
-            camera_tps.move_angle_y(controller_y);
+    //sif (controller_y > 0 && camera_tps.angle_y() < 50)
+    //        camera_tps.move_angle_y(controller_y);
+
+    /*
+        Camera Movement
+    */
+
+    glm::vec2 mouse_scroll = Input::mouse_scroll() * (float)Time::game_delta();
+    std::cout << mouse_scroll.x << ";" << mouse_scroll.y << std::endl;
+
+    static float x_speed = 0;
+    x_speed = lerp(x_speed, x_speed + mouse_scroll.x, 0.3);
+    x_speed = lerp(x_speed, 0, 0.1);
+    camera_tps.move_angle_around(x_speed);
+
+    static float y_speed = 0;
+    if (abs(mouse_scroll.x) < 1) {
+        y_speed = lerp(y_speed, y_speed + mouse_scroll.y, 0.3);
+        y_speed = lerp(y_speed, 0, 0.1);
+        float distance = camera_tps.distance();
+        float distance_max = 200;
+        float factor = distance / distance_max + 0.2f;
+        float dist_speed = y_speed * factor;
+
+        //std::cout << distance << " speed: " << y_speed << " factor: " << factor << std::endl;
+        camera_tps.move_distance(dist_speed);
+
+        distance = camera_tps.distance();
+
+        if (distance > distance_max)
+            camera_tps.set_distance(lerp(distance, distance_max, 0.3));
+        else if (distance < 0)
+           camera_tps.set_distance(lerp(distance, 0, 0.3));
+    }
 
     camera_tps.update();
 
-    glm::vec3 cam_pos = camera_tps.position();
-    float map_h = map.get_heigth(glm::vec2(cam_pos.x, cam_pos.z));
+    //glm::vec3 cam_pos = camera_tps.position();
+    //float map_h = map.get_heigth(glm::vec2(cam_pos.x, cam_pos.z));
     
-    if (cam_pos.y <= map_h + 2) {
-        float final_angle = lerp(camera_tps.angle_y(), camera_tps.angle_y() + 0.5, 0.1);
-        camera_tps.set_angle_y(final_angle);
-        cam_pos.y = map_h + 2;
+    // if (cam_pos.y <= map_h + 2) {
+    //     float final_angle = lerp(camera_tps.angle_y(), camera_tps.angle_y() + 0.5, 0.1);
+    //     camera_tps.set_angle_y(final_angle);
+    //     cam_pos.y = map_h + 2;
 
-    } else {
+    // } else {
         
-        if (Input::key_down(SDLK_DOWN))
-            camera_tps.move_angle_y(-0.5 * Time::game_delta());
+    //     if (Input::key_down(SDLK_DOWN))
+    //         camera_tps.move_angle_y(-0.5 * Time::game_delta());
 
-        if (controller_y < 0 && camera_tps.angle_y() > 20)
-            camera_tps.move_angle_y(controller_y);
-    }
+    //     if (controller_y < 0 && camera_tps.angle_y() > 20)
+    //         camera_tps.move_angle_y(controller_y);
+    // }
 
-    camera_tps.set_position(cam_pos);
-    camera_tps.update_view();
+    // camera_tps.set_position(cam_pos);
+    // camera_tps.update_view();
     
 
     // // render 3D objects

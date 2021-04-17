@@ -19,7 +19,7 @@ public:
 
     static bool key_down(SDL_KeyCode key);
     static bool key_pressed(SDL_KeyCode key);
-    static const glm::vec2 mouse_scroll() { return m_mouse_scroll - m_last_mouse_scroll; }
+    static glm::vec2 mouse_scroll() { return m_mouse_scroll - m_last_mouse_scroll; }
     static const glm::vec2& display_size() { return m_display_size; }
 
     static void connect_controller();
