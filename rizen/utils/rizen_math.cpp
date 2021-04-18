@@ -4,12 +4,18 @@
     Random
 */
 
-long seed;
+int SEED;
 
 void init_random()
 {
-    seed = time(NULL);
-    srand(seed);
+    SEED = time(NULL);
+    srand(SEED);
+}
+
+void set_seed(int seed)
+{
+    SEED = seed;
+    srand(SEED);
 }
 
 int rand_int(int min, int max)

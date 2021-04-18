@@ -25,10 +25,21 @@ set(SOURCE_FILES
     zgame/system/move_system.cpp
     zgame/system/input_move_system.cpp
     zgame/system/bounce_system.cpp
+    zgame/game/main_game.cpp
 )
 
 message("")
 message(STATUS "SOURCE entry point : " ${SOURCE_FILES})
+
+# imgui files
+set(IMGUI_SOURCE_FILES
+    ../extern/imgui/imgui_draw.cpp
+    ../extern/imgui/imgui.cpp
+    ../extern/imgui/imgui_impl_opengl3.cpp
+    ../extern/imgui/imgui_impl_sdl.cpp
+    ../extern/imgui/imgui_widgets.cpp
+    ../extern/imgui/imgui_demo.cpp
+)
 
 # rizen files
 set(RIZEN_SOURCE_FILES
@@ -36,6 +47,7 @@ set(RIZEN_SOURCE_FILES
     ../rizen/utils/rizen_math.cpp
     ../rizen/app/app.cpp
     ../rizen/app/input.cpp
+    ../rizen/app/ressource_manager.cpp
     ../rizen/opengl/opengl_2d.cpp
     ../rizen/opengl/shader.cpp
     ../rizen/opengl/texture.cpp
@@ -45,6 +57,7 @@ set(RIZEN_SOURCE_FILES
     ../rizen/world/map.cpp
 )
 
+add_library(imgui STATIC ${IMGUI_SOURCE_FILES})
 add_library(rizen STATIC ${RIZEN_SOURCE_FILES})
 
 message(STATUS "LIBRARY RIZEN ADDED: " ${RIZEN_SOURCE_FILES})
@@ -106,4 +119,4 @@ endif()
 # include and link
 message("")
 include_directories(${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} ${OPENGL_LIBRARY} ${GLEW_LIBRARIES} rizen)
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} ${OPENGL_LIBRARY} ${GLEW_LIBRARIES} rizen imgui)

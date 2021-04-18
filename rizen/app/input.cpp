@@ -49,6 +49,7 @@ void Input::update(SDL_Window* window)
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        ImGui_ImplSDL2_ProcessEvent(&event);
         Input::process_event(&event);
     }
 

@@ -15,29 +15,35 @@ uniform float u_time;
 uniform bool textured = false;
 uniform vec4 color = vec4(1.0);
 
-float tex_coord_factor = 5;
+float tex_coord_factor = 2;
 float ambient = 0.5;
+
+int cell_level = 20;
 
 vec3 calculate_diffuse(vec3 norm, vec3 light_dir)
 {
 	float diffuse = max(dot(norm, light_dir), 0.0);
-	return diffuse * vec3(0.7);
+	diffuse = floor(diffuse * cell_level);
+	diffuse = diffuse / cell_level;
+	return diffuse * vec3(1.0);
 }
 
 void main()
 {
 	vec3 norm = normalize(fs_in.normal);
-	vec3 light_dir = vec3(0.0, 1.0, 0.0);
+	//float day_time = u_time * 0.1;
+	vec3 light_dir = vec3(0.5, 1.0, 0.0);
 
 	vec3 diffuse = calculate_diffuse(norm, light_dir);	
 	vec4 result = vec4(ambient + diffuse, 1.0) * color;
 
     vec2 tex_coord = fs_in.tex_coord * tex_coord_factor;
     
-    float time = u_time * 0.1;
+    float time = u_time * 0.05;
     float dist = 2;
     tex_coord.x += cos(time) * dist;
     tex_coord.y += sin(time) * dist;
 
-	frag_color = texture(aTexture, tex_coord) * result;
+	//frag_color = texture(aTexture, tex_coord) * result;
+	frag_color = result;
 }

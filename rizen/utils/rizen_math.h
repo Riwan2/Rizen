@@ -17,9 +17,10 @@
 */
 
 const double PI = 3.14159265358979323846264f;
-extern long seed;
+extern int SEED;
 
 void init_random();
+void set_seed(int seed);
 int rand_int(int min, int max);
 float rand_float(float min, float max);
 

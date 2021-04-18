@@ -23,18 +23,16 @@ void HeightMap::init(const glm::vec2& size)
     }
 }
 
-void HeightMap::generate_random(float octave, float amplitude)
+void HeightMap::generate_random(float octave, float roughness, float amplitude)
 {
-    generate_noise();
-
+    m_seed = rand_int(0, 10000000);
+    set_seed(m_seed);
     for (int y = 0; y < m_size.y; y++) {
         for (int x = 0; x < m_size.x; x++) {
             int index = y * m_size.x + x;
-            m_heights[index] = generate_height(x, y, octave, amplitude);
+            m_heights[index] = generate_height(x, y, octave, roughness, amplitude);
         }
     }
-
-    delete[] m_noises;
 }
 
 float HeightMap::get_height(int x, int y)
@@ -48,16 +46,18 @@ float HeightMap::get_height(int x, int y)
     Noise
 */
 
-void HeightMap::generate_noise()
+float HeightMap::generate_height(int x, int y, float octave, float roughness, float amplitude)
 {
-    m_noises = new float[m_num_heights];
-    for (int i = 0; i < m_num_heights; i++)
-        m_noises[i] = rand_float(0, 1);
-}
+    float total = 0;
+    float d = pow(2, octave - 1);
 
-float HeightMap::generate_height(int x, int y, float octave, float amplitude)
-{
-    return interpolated_noise(x / octave, y / octave) * amplitude - amplitude / 2;
+    for (int i = 0; i < octave; i++) {
+        float freq = pow(2, i) / d;
+        float amp = pow(roughness, i) * amplitude;
+        total += interpolated_noise(x * freq, y * freq) * amp;
+    }
+    //return interpolated_noise(x / octave, y / octave) * amplitude - amplitude / 2;
+    return total - amplitude / 2;
 }
 
 float HeightMap::interpolated_noise(float x, float y)
@@ -95,9 +95,9 @@ float HeightMap::interpolate(float a, float b, float blend)
 
 float HeightMap::get_noise(int x, int y)
 {
-    if (x < 0 || x > m_size.x || y < 0 || y > m_size.y) return 0;
-    int index = y * m_size.x + x;
-    return m_noises[index];
+    int n = (x + m_seed) + (y + m_seed) * 57;
+    n = (n << 13) ^ n;
+    return (1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF) / 1073741824.0);
 }
 
 /*
@@ -128,19 +128,20 @@ void Map::init(Material* material, const glm::vec2& size, const glm::vec2& resol
     m_render_model->init(m_mesh, material);   
 }
 
-void Map::generate_random_heightmap(float octave, float amplitude)
+void Map::generate_random_heightmap(float octave, float roughness, float amplitude)
 {
     delete m_mesh;
     m_octave = octave;
     m_amplitude = amplitude;
-    m_height_map->generate_random(octave, amplitude);
+    m_roughness = roughness;
+    m_height_map->generate_random(octave, roughness, amplitude);
     load_mesh();
     m_render_model->set_mesh(m_mesh);
 }
 
 void Map::reset_random()
 {
-    generate_random_heightmap(m_octave, m_amplitude);
+    generate_random_heightmap(m_octave, m_roughness, m_amplitude);
 }
 
 void Map::render(Renderer* renderer)

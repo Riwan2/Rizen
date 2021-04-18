@@ -3,9 +3,22 @@
 App::App() {}
 App::~App() 
 {
+    // Imgui
+    ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
+
+    // ressource manager
+    delete m_ressource_manager;
+
+    // renderer
     delete m_renderer;
     delete m_renderer_2d;
+
+    // input
     Input::clean_up();
+
+    // sdl / opengl
     SDL_GL_DeleteContext(m_gl_context);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -64,6 +77,23 @@ bool App::init(const AppInfo& info)
 
     // vsync
     SDL_GL_SetSwapInterval(-1);
+    
+    // Ressource manager
+    m_ressource_manager = new RessourceManager(m_renderer);
+
+    // init imgui
+    IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplSDL2_InitForOpenGL(m_window, m_gl_context);
+	const char* glsl_version = "#version 330";
+	ImGui_ImplOpenGL3_Init(glsl_version);
 
     return true;
 }
@@ -84,9 +114,16 @@ void App::begin()
     Input::update(m_window);
 
     glViewport(0, 0, Input::display_size().x, Input::display_size().y);
+
+    ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame(m_window);
+	ImGui::NewFrame();
 }
 
 void App::end()
 {
+    ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     SDL_GL_SwapWindow(m_window);
 }

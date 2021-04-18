@@ -13,17 +13,17 @@ public:
     ~HeightMap();
 
     void init(const glm::vec2& size);
-    void generate_random(float octave, float amplitude);
+    void generate_random(float octave, float roughness, float amplitude);
     float get_height(int x, int y);
 
 private:
     float* m_heights;
-    float* m_noises;
     int m_num_heights;
     glm::vec2 m_size;
+    int m_seed;
 
     void generate_noise();
-    float generate_height(int x, int y, float octave, float amplitude);
+    float generate_height(int x, int y, float octave, float roughness, float amplitude);
     float interpolated_noise(float x, float y);
     float smooth(int x, int y);
     float interpolate(float a, float b, float blend);
@@ -38,7 +38,7 @@ class Map {
 public:
     ~Map();
     void init(Material* material, const glm::vec2& size, const glm::vec2& resolution, const glm::vec3& position);
-    void generate_random_heightmap(float octave = 10, float amplitude = 100);
+    void generate_random_heightmap(float octave = 10, float roughness = 0.2, float amplitude = 100);
     void reset_random();
 
     void render(Renderer* renderer);
@@ -65,6 +65,7 @@ private:
 
     float m_octave;
     float m_amplitude;
+    float m_roughness;
 
     void load_mesh();
     float get_heightmap(int x, int y);

@@ -14,7 +14,18 @@ bool Material::init(Shader* shader, float ambient, float reflectivity, float shi
 	m_ambient = ambient;
 	m_reflectivity = reflectivity;
 	m_shine_damper = shine_damper;
+	m_texture = nullptr;
 	return true;
+}
+
+void Material::init(Shader* shader, const MaterialInfo& info)
+{
+	m_shader = shader;
+	m_color = info.color;
+	m_ambient = info.ambient;
+	m_reflectivity = info.reflectivity;
+	m_shine_damper = info.shine_damper;
+	m_texture = info.texture;
 }
 
 void Material::set_texture(Texture* texture)
@@ -75,7 +86,6 @@ void Model::init_instanced(Mesh* mesh, Material* material)
 
     glBindVertexArray(0);
 }
-
 
 /*
     Mesh
@@ -272,7 +282,7 @@ bool Mesh::init(const std::string& p_filename)
         indices[i].index3 = list_indices[++index];
 	}
 
-    init(vertices, m_num_vertices, indices, m_num_indices);
+    init(vertices, m_num_vertices, indices, num_triangle_indices);
 	delete[] indices;
 	delete[] vertices;
 	

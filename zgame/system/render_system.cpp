@@ -37,7 +37,7 @@ void RenderSystem::render(Renderer* renderer, entt::registry& registry)
         shader->bind();
         material->populate();
 
-        if (texture)
+        if (texture != nullptr)
             texture->bind();
 
         if (!model->instanced())

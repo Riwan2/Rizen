@@ -60,6 +60,14 @@ private:
     Material
 */
 
+struct MaterialInfo {
+    Texture* texture = nullptr;
+    glm::vec4 color = glm::vec4(1.0);
+    float shine_damper = 8.0;
+    float reflectivity = 1.0;
+    float ambient = 0.5;
+};
+
 class Material {
 public:
     Material();
@@ -67,6 +75,7 @@ public:
 
     bool init(Shader* shader, float ambient = 0.3, float reflectivity = 1.0, float shine_damper = 8.0,
               const glm::vec4& color = glm::vec4(1.0));
+    void init(Shader* shader, const MaterialInfo& info);
     void populate();
 
     void set_texture(Texture* texture);
