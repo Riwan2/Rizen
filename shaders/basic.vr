@@ -5,10 +5,11 @@ layout (location = 1) in vec3 aNorm;
 layout (location = 2) in vec2 aTexCoord;
 
 layout (std140) uniform Matrices {
-	mat4 projection_view;	// 16
-							// 16
-							// 16
-							// 16
+	mat4 projection_view;	// 16		// 16
+							// 16		// 32
+							// 16		// 48
+							// 16		// 64
+	vec3 sun_direction;		// 16		// 80
 };
 
 uniform mat4 model;
@@ -17,6 +18,7 @@ out VS_OUT {
 	vec3 frag_pos;
 	vec3 normal;
 	vec2 tex_coord;
+	vec3 light_dir;
 } vs_out;
 
 void main()
@@ -26,4 +28,6 @@ void main()
 	vs_out.frag_pos = vec3(model * vec4(aPos, 1.0));
 	vs_out.normal = mat3(transpose(inverse(model))) * aNorm;
 	vs_out.tex_coord = aTexCoord;
+
+	vs_out.light_dir = sun_direction;
 }

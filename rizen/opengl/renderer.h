@@ -13,6 +13,8 @@
 
 #define MATRICES_SIZE 64
 #define MATRICES_INDEX 0
+#define LIGHT_DIR_SIZE 16
+#define LIGHT_DIR_INDEX 1
 
 class Renderer {
 public:
@@ -32,8 +34,9 @@ public:
     /**
      * @brief Begin rendering sequence.
      * @param camera
+     * @param sun_direction
      */
-    void begin(Camera* camera);
+    void begin(Camera* camera, const glm::vec3& sun_direction);
 
     /**
      * @brief End rendering sequence.

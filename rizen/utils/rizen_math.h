@@ -12,6 +12,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <vector>
+
 /*
     Random
 */
@@ -23,6 +25,23 @@ void init_random();
 void set_seed(int seed);
 int rand_int(int min, int max);
 float rand_float(float min, float max);
+
+/*
+    Random position
+*/
+
+/**
+ * @brief Search a random position in a square shape. 
+ * The position returned doesn't overlap with the positions provided.
+ * If there is too much iteration when searching, it return a random position that overlap.
+ * @param position middle of the square radius
+ * @param size size of the square radius
+ * @param radius minimum distance between position
+ * @param last_positions list of position to test
+ * @return random position
+ */
+glm::vec2 random_position_no_overlap(const glm::vec2& position, const glm::vec2& size, float radius, const std::vector<glm::vec2>& last_positions);
+
 
 /*
     Quaternion

@@ -14,13 +14,16 @@ void Renderer::init()
     set_ubo();
 }
 
-void Renderer::begin(Camera* camera)
+void Renderer::begin(Camera* camera, const glm::vec3& sun_direction)
 {
     glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
     glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->projection_view()));
+    size_t offset = 0;
+    glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::mat4), glm::value_ptr(camera->projection_view()));
+    offset += sizeof(glm::mat4);
+    glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::vec4), glm::value_ptr(sun_direction));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -75,10 +78,11 @@ void Renderer::set_ubo()
 {
     glGenBuffers(1, &m_ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
-    glBufferData(GL_UNIFORM_BUFFER, MATRICES_SIZE, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, MATRICES_SIZE + LIGHT_DIR_SIZE, NULL, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
     glBindBufferRange(GL_UNIFORM_BUFFER, MATRICES_INDEX, m_ubo, 0, MATRICES_SIZE);
+    glBindBufferRange(GL_UNIFORM_BUFFER, LIGHT_DIR_INDEX, m_ubo, 0, LIGHT_DIR_SIZE);
 }
 
 void Renderer::bind_ubo(Material* material)

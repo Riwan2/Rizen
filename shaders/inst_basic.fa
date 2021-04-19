@@ -7,6 +7,7 @@ in VS_OUT {
 	vec3 frag_pos;
 	vec3 normal;
 	vec2 tex_coord;
+	vec3 light_dir;
 } fs_in;
 
 uniform vec3 view_pos;
@@ -52,6 +53,8 @@ void main()
 {
 	vec3 norm = normalize(fs_in.normal);
 	vec3 light_dir = normalize(light_pos - fs_in.frag_pos);
+
+	light_dir = fs_in.light_dir;
 
 	vec3 ambient_lighting = calculate_ambient();
 	vec3 diffuse = calculate_diffuse(norm, light_dir);

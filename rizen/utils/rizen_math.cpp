@@ -30,6 +30,34 @@ float rand_float(float min, float max)
 }
 
 /*
+    Random Position
+*/
+
+glm::vec2 random_position_no_overlap(const glm::vec2& position, const glm::vec2& size, float radius, const std::vector<glm::vec2>& last_positions)
+{
+    int iteration = 0;
+    glm::vec2 rand_pos;
+    bool finished = false;
+
+    do {
+        rand_pos.x = rand_float(position.x, size.x);
+        rand_pos.y = rand_float(position.y, size.y);
+        finished = true;
+
+        for (auto pos : last_positions) {
+            if (abs(rand_pos.x - pos.x) < radius)
+                finished = false;
+            if (abs(rand_pos.y - pos.y) < radius)
+                finished = false;
+        }
+
+        iteration++;
+    } while (!finished && iteration < 10000);
+
+    return rand_pos;
+}
+
+/*
     Quaternion
 */
 

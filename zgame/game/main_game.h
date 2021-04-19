@@ -6,10 +6,15 @@
 #include "../system/input_move_system.h"
 #include "../system/bounce_system.h"
 
+#include "../../rizen/rizen.h"
+
 class MainGame {
 public:
-    void init();
-    void update();
+    void init(App* app);
+    void update(App* app);
+private:
+    void load(App* app);
+    void init_entities(App* app);
 };
 
 #endif //MAIN_GAME_H

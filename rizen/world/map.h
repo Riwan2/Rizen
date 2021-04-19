@@ -49,7 +49,9 @@ public:
 
     void set_position(const glm::vec3& position);
     void move_position(const glm::vec3& position);
+    
     const glm::vec3& position() const { return m_position; }
+    const glm::vec2& size() const { return m_size; }
 
 private:
     glm::vec2 m_size;
