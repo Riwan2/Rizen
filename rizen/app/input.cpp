@@ -47,6 +47,11 @@ void Input::update(SDL_Window* window)
     m_mouse_scroll = glm::vec2(0, 0);
     m_last_mouse_scroll = glm::vec2(0, 0);
 
+    glm::vec2 mouse_pos;
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+    //std::cout << x << ";" << y << std::endl;
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         ImGui_ImplSDL2_ProcessEvent(&event);

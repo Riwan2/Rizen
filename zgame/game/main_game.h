@@ -15,6 +15,7 @@ public:
 private:
     void load(App* app);
     void init_entities(App* app);
+    void update_imgui(App* app);
 };
 
 #endif //MAIN_GAME_H

@@ -65,4 +65,14 @@ private:
 	Texture* m_texture;
 };
 
+/*
+	CubeMap
+*/
+
+class CubeMap {
+public:
+
+private:
+};
+
 #endif //TEXTURE_H

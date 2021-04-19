@@ -265,12 +265,63 @@ void MainGame::init_entities(App* app)
     // }
 }
 
+void MainGame::update_imgui(App* app)
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.8f);
+    // Random map generation
+    ImGui::Begin("Terrain Generator");
+    static glm::vec4 color = app->ressource_manager()->material("map")->color();
+    ImGui::ColorEdit4("Color", glm::value_ptr(color));
+    app->ressource_manager()->material("map")->set_color(color);
+
+    static float octave = 6;
+    static int amplitude = 35;
+    static float roughness = 0.3f;
+
+    ImGui::SliderFloat("Octave", &octave, 0, 20, NULL);
+    ImGui::SliderInt("Amplitude", &amplitude, 5, 40);
+    ImGui::SliderFloat("Roughness", &roughness, 0.001, 1.0);
+
+    bool generate = ImGui::Button("Generate") | Input::key_pressed(SDLK_g);
+    if (generate)
+        map.generate_random_heightmap(octave, roughness, amplitude);
+
+    ImGui::End();
+
+
+    // Performance
+    const int size = 100;
+    static float fps_arr[size];
+    static int index = 0;
+    fps_arr[index] = 1 / Time::delta() * 1000;
+
+    if (index >= size - 1)
+        for (int i = 1; i < size; i++)
+            fps_arr[i-1] = fps_arr[i];
+    else
+        index++;
+
+    ImGui::Begin("Performance");
+    ImGui::PushStyleColor(ImGuiCol_PlotLines, ImVec4(0.5, 0.9, 0.6, 1.0));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1, 0.1, 0.2, 1.0));
+    ImGui::PlotLines("Fps", fps_arr, IM_ARRAYSIZE(fps_arr), 0, NULL, 0.0f, 60.0f, ImVec2(0, 35));
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::Text("Nb Entities: %d", (int)registry.size());
+    ImGui::End();
+
+    ImGui::PopStyleVar();
+}
+
 /*
     Update game
 */
 
 void MainGame::update(App* app)
 {
+    //imgui
+    update_imgui(app);
+
     // resize window
     if (Input::on_resized()) {
         glm::vec2 d_size = Input::display_size();
@@ -289,31 +340,6 @@ void MainGame::update(App* app)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // random map generation
-    static bool active = true;
-
-    if (Input::key_pressed(SDLK_RETURN))
-        active = !active;
-
-    ImGui::Begin("Terrain Generator", &active);
-    static glm::vec4 color = app->ressource_manager()->material("map")->color();
-    ImGui::ColorEdit4("Color", glm::value_ptr(color));
-    app->ressource_manager()->material("map")->set_color(color);
-
-    static float octave = 6;
-    static int amplitude = 35;
-    static float roughness = 0.3f;
-
-    ImGui::SliderFloat("Octave", &octave, 0, 20, NULL);
-    ImGui::SliderInt("Amplitude", &amplitude, 5, 40);
-    ImGui::SliderFloat("Roughness", &roughness, 0.001, 1.0);
-
-    bool generate = ImGui::Button("Generate") | Input::key_pressed(SDLK_g);
-    if (generate)
-        map.generate_random_heightmap(octave, roughness, amplitude);
-
-    ImGui::End();
 
     // update system
     bounce_system.update(registry, &map);
@@ -396,6 +422,7 @@ void MainGame::update(App* app)
         else if (distance < 0)
            camera_tps.set_distance(lerp(distance, 0, 0.3));
     }
+
 
     camera_tps.update();
     
