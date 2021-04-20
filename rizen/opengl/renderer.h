@@ -26,10 +26,10 @@ public:
     void init();
     
     /**
-     * @brief Bind the uniform buffer to the material shader
-     * @param material
+     * @brief Bind the uniform buffer to the shader
+     * @param shader
      */
-    void bind_ubo(Material* material);
+    void bind_ubo(Shader* shader);
 
     /**
      * @brief Begin rendering sequence.

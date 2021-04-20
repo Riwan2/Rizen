@@ -85,9 +85,8 @@ void Renderer::set_ubo()
     glBindBufferRange(GL_UNIFORM_BUFFER, LIGHT_DIR_INDEX, m_ubo, 0, LIGHT_DIR_SIZE);
 }
 
-void Renderer::bind_ubo(Material* material)
+void Renderer::bind_ubo(Shader* shader)
 {
-    Shader* shader = material->shader();
     GLuint index = glGetUniformBlockIndex(shader->program_id(), "Matrices");
 	glUniformBlockBinding(shader->program_id(), index, MATRICES_INDEX);
 }

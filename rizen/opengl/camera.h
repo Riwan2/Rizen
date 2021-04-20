@@ -33,6 +33,8 @@ public:
     void move_position(const glm::vec3& position) { m_pos += position; }
     void move_target(const glm::vec3& target) { m_target += target; }
 
+    const glm::mat4& view() const { return m_view; }
+    const glm::mat4& projection() const { return m_projection; }
     const glm::mat4& projection_view() const { return m_projection_view; }
 
     const glm::vec3& target() const { return m_target; }

@@ -33,6 +33,7 @@ void RessourceManager::add_shader(const std::string& name, Shader* shader)
 {
     assert(m_shaders.find(name) == m_shaders.end() || "Shader already existing");
     m_shaders[name] = shader;
+    m_renderer->bind_ubo(shader);
 }
 
 void RessourceManager::add_shader(const std::string& name, const std::string& vr_filename, const std::string& fa_filename)
@@ -41,6 +42,7 @@ void RessourceManager::add_shader(const std::string& name, const std::string& vr
     Shader* shader = new Shader();
     shader->init(vr_filename, fa_filename);
     m_shaders[name] = shader;
+    m_renderer->bind_ubo(shader);
 }
 
 void RessourceManager::add_texture(const std::string& name, Texture* texture)
@@ -61,7 +63,6 @@ void RessourceManager::add_material(const std::string& name, Material* material)
 {
     assert(m_materials.find(name) == m_materials.end() || "Material already existing");
     m_materials[name] = material;
-    m_renderer->bind_ubo(material);
 }
 
 void RessourceManager::add_material(const std::string& name, Shader* shader, const MaterialInfo& material_info)
@@ -70,7 +71,6 @@ void RessourceManager::add_material(const std::string& name, Shader* shader, con
     Material* material = new Material();
     material->init(shader, material_info);
     m_materials[name] = material;
-    m_renderer->bind_ubo(material);
 }
 
 

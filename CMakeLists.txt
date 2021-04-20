@@ -55,6 +55,7 @@ set(RIZEN_SOURCE_FILES
     ../rizen/opengl/model.cpp
     ../rizen/opengl/renderer.cpp
     ../rizen/world/map.cpp
+    ../rizen/world/skybox.cpp
 )
 
 add_library(imgui STATIC ${IMGUI_SOURCE_FILES})

@@ -12,6 +12,7 @@ Square fbuffer_square;
 
 // 3D
 CameraTPS camera_tps;
+SkyBox skybox;
 
 // System
 RenderSystem render_system;
@@ -42,6 +43,7 @@ void MainGame::load(App* app)
     app->ressource_manager()->add_shader("basic", "basic.vr", "basic.fa");
     app->ressource_manager()->add_shader("basic_instanced", "inst_basic.vr", "inst_basic.fa");
     app->ressource_manager()->add_shader("map", "terrain/map.vr", "terrain/map.fa");
+    app->ressource_manager()->add_shader("skybox", "terrain/skybox.vr", "terrain/skybox.fa");
     
     /*
         Texture
@@ -173,6 +175,16 @@ void MainGame::init(App* app)
     int size = 200;
     map.init(app->ressource_manager()->material("map"), glm::vec2(size), glm::vec2(200), glm::vec3(-size / 2, 0, -size / 2));
     map.generate_random_heightmap(6, 0.3, 35);
+
+    const std::string path = "cubemap/space/";
+    std::vector<std::string> faces_name;
+    faces_name.push_back(path + "right.png");
+    faces_name.push_back(path + "left.png");
+    faces_name.push_back(path + "top.png");
+    faces_name.push_back(path + "bottom.png");
+    faces_name.push_back(path + "front.png");
+    faces_name.push_back(path + "back.png");
+    skybox.init(app->ressource_manager()->shader("skybox"), faces_name);
 
     // Entities
     init_entities(app);
@@ -444,7 +456,8 @@ void MainGame::update(App* app)
 
     app->renderer()->begin(&camera_tps, sun_direction);
     app->clear(glm::vec4(0.95));
-    
+
+    skybox.render(&camera_tps);
     render_system.render(app->renderer(), registry);
     map.render(app->renderer());
 

@@ -7,7 +7,6 @@
     Texture
 */
 
-Texture::Texture() {}
 Texture::~Texture()
 {
 	glDeleteTextures(1, &m_texture_id);
@@ -67,9 +66,8 @@ void Texture::init_framebuffer(const glm::vec2& size)
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+	
 	glBindTexture(GL_TEXTURE_2D, 0);
-
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_id, 0);
 }
 
@@ -84,8 +82,6 @@ void Texture::resize(const glm::vec2& size)
 	FrameBuffer
 */
 
-
-FrameBuffer::FrameBuffer() {}
 FrameBuffer::~FrameBuffer()
 {
 	delete m_texture;
@@ -133,4 +129,46 @@ void FrameBuffer::resize(const glm::vec2& size)
 	m_texture->resize(size);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);	
+}
+
+/*
+	CubeMap
+*/
+
+CubeMap::~CubeMap()
+{
+	glDeleteTextures(1, &m_texture_id);
+}
+
+void CubeMap::init_png(const std::vector<std::string>& faces_filenames)
+{
+	int width, height, nr_channels;
+	unsigned char* data;
+    glGenTextures(1, &m_texture_id);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture_id);
+	
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	assert(faces_filenames.size() == 6 && "cubemap filename number incorect");
+
+	for (int i = 0; i < 6; i++) {
+		std::string fileName = TEXTURE_PATH + faces_filenames[i];
+		data = stbi_load(fileName.c_str(), &width, &height, &nr_channels, 0);
+		assert(data != NULL && "stb failed to load the cubemap image data");
+
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+		stbi_image_free(data);
+	}
+}
+
+void CubeMap::bind()
+{
+	glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_texture_id);
 }

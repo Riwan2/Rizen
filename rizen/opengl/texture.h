@@ -7,6 +7,8 @@
 
 #include "../utils/log.h"
 
+#include <vector>
+
 /*
 	Texture
 */
@@ -15,7 +17,6 @@ const std::string TEXTURE_PATH = "../textures/";
 
 class Texture {
 public:
-	Texture();
 	~Texture();
 
 	bool init_png(const std::string& filename);
@@ -49,7 +50,6 @@ private:
 
 class FrameBuffer {
 public:
-	FrameBuffer();
 	~FrameBuffer();
 
 	bool init(const glm::vec2& size);
@@ -71,8 +71,13 @@ private:
 
 class CubeMap {
 public:
+	~CubeMap();
+	void init_png(const std::vector<std::string>& faces_filenames);
+
+	void bind();
 
 private:
+	GLuint m_texture_id;
 };
 
 #endif //TEXTURE_H
