@@ -2,7 +2,17 @@
 
 layout (location = 0) in vec3 aPos;
 
-out vec3 texCoord;
+out vec3 tex_coord;
+out vec3 acolor;
+
+layout (std140) uniform Matrices {
+	mat4 projection_view;	// 16		// 16
+							// 16		// 32
+							// 16		// 48
+							// 16		// 64
+	vec3 sun_direction;		// 16		// 80
+	vec3 sky_color;			// 16		// 96
+};
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -10,6 +20,8 @@ uniform mat4 view;
 void main()
 {
 	vec4 pos = projection * view * vec4(aPos, 1.0);
-	texCoord = aPos;
+	tex_coord = aPos;
+	tex_coord.y *= -1;
     gl_Position = pos;
+	acolor = sky_color;
 }

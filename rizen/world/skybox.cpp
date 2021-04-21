@@ -30,6 +30,7 @@ void SkyBox::render(Camera* camera)
 
     m_shader->set_mat4("projection", camera->projection());
     m_shader->set_mat4("view", view);
+	m_shader->set_float("u_time", Time::time_sec());
 
     m_cube_map->bind();
     glBindVertexArray(m_vao);

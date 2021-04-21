@@ -15,6 +15,8 @@
 #define MATRICES_INDEX 0
 #define LIGHT_DIR_SIZE 16
 #define LIGHT_DIR_INDEX 1
+#define SKY_COLOR_SIZE 16
+#define SKY_COLOR_INDEX 2
 
 class Renderer {
 public:
@@ -36,7 +38,7 @@ public:
      * @param camera
      * @param sun_direction
      */
-    void begin(Camera* camera, const glm::vec3& sun_direction);
+    void begin(Camera* camera, const glm::vec3& sun_direction, const glm::vec3& sky_color);
 
     /**
      * @brief End rendering sequence.

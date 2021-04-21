@@ -8,6 +8,7 @@ in VS_OUT {
 	vec3 normal;
 	vec2 tex_coord;
 	vec3 light_dir;
+	vec3 sky_color;
 } fs_in;
 
 uniform vec3 view_pos;
@@ -38,7 +39,7 @@ vec3 calculate_ambient()
 vec3 calculate_diffuse(vec3 norm, vec3 light_dir)
 {
 	float diffuse = max(dot(norm, light_dir), 0.0);
-	return diffuse * light_color;
+	return diffuse * fs_in.sky_color;
 }
 
 vec3 calculate_specular(vec3 norm, vec3 light_dir)

@@ -14,16 +14,34 @@ void Renderer::init()
     set_ubo();
 }
 
-void Renderer::begin(Camera* camera, const glm::vec3& sun_direction)
+void Renderer::set_ubo()
+{
+    glGenBuffers(1, &m_ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+    glBufferData(GL_UNIFORM_BUFFER, MATRICES_SIZE + LIGHT_DIR_SIZE + SKY_COLOR_SIZE, NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    
+    glBindBufferRange(GL_UNIFORM_BUFFER, MATRICES_INDEX, m_ubo, 0, MATRICES_SIZE);
+    glBindBufferRange(GL_UNIFORM_BUFFER, LIGHT_DIR_INDEX, m_ubo, 0, LIGHT_DIR_SIZE);
+    glBindBufferRange(GL_UNIFORM_BUFFER, SKY_COLOR_INDEX, m_ubo, 0, SKY_COLOR_SIZE);
+}
+
+void Renderer::begin(Camera* camera, const glm::vec3& sun_direction, const glm::vec3& sky_color)
 {
     glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
     glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+    
     size_t offset = 0;
     glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::mat4), glm::value_ptr(camera->projection_view()));
+    
     offset += sizeof(glm::mat4);
     glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::vec4), glm::value_ptr(sun_direction));
+
+    offset += sizeof(glm::vec4);
+    glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::vec4), glm::value_ptr(sky_color));
+
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -72,17 +90,6 @@ void Renderer::render_instanced(Model* render_model, glm::mat4* models, int num_
     glBufferSubData(GL_ARRAY_BUFFER, 0, num_models * sizeof(glm::mat4), models);
 
     render_model->mesh()->render_instanced(num_models);
-}
-
-void Renderer::set_ubo()
-{
-    glGenBuffers(1, &m_ubo);
-    glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
-    glBufferData(GL_UNIFORM_BUFFER, MATRICES_SIZE + LIGHT_DIR_SIZE, NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    
-    glBindBufferRange(GL_UNIFORM_BUFFER, MATRICES_INDEX, m_ubo, 0, MATRICES_SIZE);
-    glBindBufferRange(GL_UNIFORM_BUFFER, LIGHT_DIR_INDEX, m_ubo, 0, LIGHT_DIR_SIZE);
 }
 
 void Renderer::bind_ubo(Shader* shader)

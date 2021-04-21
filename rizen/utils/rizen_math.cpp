@@ -145,6 +145,16 @@ glm::vec3 lerp(const glm::vec3& a, const glm::vec3& b, float factor)
     return result;
 }
 
+glm::vec4 lerp(const glm::vec4& a, const glm::vec4& b, float factor)
+{
+    glm::vec4 result;
+    result.x = lerp(a.x, b.x, factor);
+    result.y = lerp(a.y, b.y, factor);
+    result.z = lerp(a.z, b.z, factor);
+    result.w = lerp(a.w, b.w, factor);
+    return result;
+}
+
 float lerp_degrees(float a, float b, float factor)
 {
     float result;

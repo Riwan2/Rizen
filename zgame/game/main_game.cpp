@@ -4,8 +4,6 @@
     Init game
 */
 
-const float DAY_TIME = 120;
-
 // 2D
 FrameBuffer frame_buffer;
 Square fbuffer_square;
@@ -172,7 +170,7 @@ void MainGame::init(App* app)
         Map
     */
     
-    int size = 200;
+    int size = 400;
     map.init(app->ressource_manager()->material("map"), glm::vec2(size), glm::vec2(200), glm::vec3(-size / 2, 0, -size / 2));
     map.generate_random_heightmap(6, 0.3, 35);
 
@@ -437,24 +435,37 @@ void MainGame::update(App* app)
 
 
     camera_tps.update();
-    
+    m_day_manager.update();
 
-    // Sun
-    static glm::vec3 sun_direction = glm::vec3(0.0);
-    float time = Time::time_sec() / (DAY_TIME / PI / 2);
+    ImGui::Begin("Time");
+    ImGui::Text("Day Time: %i", (int)DAY_TIME);
+    ImGui::Text("Current Time: %09f", m_day_manager.time());
+    ImGui::ProgressBar(m_day_manager.progress());
+    ImGui::ProgressBar(MORNING, ImVec2(-1, 0), "morning");
+    ImGui::ProgressBar(MIDI, ImVec2(-1, 0), "midi");
+    ImGui::ProgressBar(EVENING, ImVec2(-1, 0), "evening");
+    ImGui::Text("Current Hour: %02i:%02i", m_day_manager.hour(), m_day_manager.minute());
 
-    bool is_day = cos(time / 2 - PI / 2) >= 0;
-    if (is_day) {
-        sun_direction.y = cos(time + PI) * 0.5 + 0.5;
-        sun_direction.x = lerp(sun_direction.x, cos(time / 2), 0.005);
-    } else {
-        sun_direction.x = lerp(sun_direction.x, 0, 0.005);
-    }
+    ImGui::ColorEdit3("Night Color", glm::value_ptr(NIGHT_COLOR));
+
+    ImGui::Text("Morning time: %f -> %i", MORNING_TIME, int(MORNING_TIME / (DAY_TIME / 24)));
+    ImGui::ColorEdit3("Morning Color", glm::value_ptr(MORNING_COLOR));
+
+    ImGui::Text("Midi time: %f -> %i", MIDI_TIME, int(MIDI_TIME / (DAY_TIME / 24)));
+    ImGui::ColorEdit3("Midi Color", glm::value_ptr(MIDI_COLOR));
+
+    ImGui::Text("Evening time: %f -> %i", EVENING_TIME, int(EVENING_TIME / (DAY_TIME / 24)));
+    ImGui::ColorEdit3("Evening Color", glm::value_ptr(EVENING_COLOR));
+
+    ImGui::ColorButton("SkyColor", ImVec4(m_day_manager.sky_color().x, m_day_manager.sky_color().y,
+                                          m_day_manager.sky_color().z, 1.0), 0, ImVec2(200, 50));
+
+    ImGui::End();
 
     // // render 3D objects
     frame_buffer.bind();
 
-    app->renderer()->begin(&camera_tps, sun_direction);
+    app->renderer()->begin(&camera_tps, m_day_manager.sun_direction(), m_day_manager.sky_color());
     app->clear(glm::vec4(0.95));
 
     skybox.render(&camera_tps);

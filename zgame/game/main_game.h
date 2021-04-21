@@ -8,6 +8,8 @@
 
 #include "../../rizen/rizen.h"
 
+#include "day_manager.h"
+
 class MainGame {
 public:
     void init(App* app);
@@ -16,6 +18,8 @@ private:
     void load(App* app);
     void init_entities(App* app);
     void update_imgui(App* app);
+
+    DayManager m_day_manager;
 };
 
 #endif //MAIN_GAME_H

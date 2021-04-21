@@ -5,6 +5,8 @@
 #include "../opengl/shader.h"
 #include "../opengl/camera.h"
 
+#include "../utils/rizen_time.h"
+
 class SkyBox {
 public:
     ~SkyBox();

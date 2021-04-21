@@ -8,6 +8,7 @@ in VS_OUT {
 	vec3 normal;
 	vec2 tex_coord;
 	vec3 light_dir;
+	vec3 sky_color;
 } fs_in;
 
 uniform vec3 view_pos;
@@ -25,7 +26,7 @@ vec3 calculate_diffuse(vec3 norm, vec3 light_dir)
 	float diffuse = max(dot(norm, light_dir), 0.0);
 	diffuse = floor(diffuse * cell_level);
 	diffuse = diffuse / cell_level;
-	return diffuse * vec3(1.0);
+	return diffuse * fs_in.sky_color;
 }
 
 void main()

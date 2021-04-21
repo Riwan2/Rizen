@@ -57,6 +57,7 @@ glm::quat rotation_between_vector(glm::vec3 start, glm::vec3 dest);
 float lerp(float a, float b, float factor);
 glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, float factor);
 glm::vec3 lerp(const glm::vec3& a, const glm::vec3& b, float factor);
+glm::vec4 lerp(const glm::vec4& a, const glm::vec4& b, float factor);
 float lerp_degrees(float a, float b, float factor);
 
 /*
