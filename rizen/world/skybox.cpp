@@ -16,21 +16,30 @@ void SkyBox::init(Shader* shader, const std::vector<std::string>& faces_filename
     m_shader = shader;
 }
 
-void SkyBox::render(Camera* camera)
+void SkyBox::render(Camera* camera, float night_factor)
 {
     glEnable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
 
-    static float a = 0;
-    a += 0.01f;
-
     m_shader->bind();
-    glm::mat4 view = glm::mat4(glm::mat3(camera->view()));  
-    //view = glm::rotate(view, a, glm::vec3(0, 1, 0));
+    glm::mat4 view = glm::mat4(glm::mat3(camera->view()));
+	
+	static float rotate = 0;
+	static float last = 0;
+	static float factor = 0;
+	
+	last = factor;
+	factor = night_factor;
+
+	if (factor > last)
+		rotate = night_factor;
+
+    view = glm::rotate(view, rotate, glm::vec3(0, 1, 0));
 
     m_shader->set_mat4("projection", camera->projection());
     m_shader->set_mat4("view", view);
 	m_shader->set_float("u_time", Time::time_sec());
+	m_shader->set_float("night_factor", factor);
 
     m_cube_map->bind();
     glBindVertexArray(m_vao);

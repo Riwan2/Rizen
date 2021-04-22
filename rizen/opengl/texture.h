@@ -22,9 +22,11 @@ public:
 	bool init_png(const std::string& filename);
     bool init_jpg(const std::string& filename);
 	void init_framebuffer(const glm::vec2& size);
+	void init_framebuffer_depth(const glm::vec2& size);
 
 	void bind(GLenum sampler = GL_TEXTURE0);
 	void resize(const glm::vec2& size);
+	void resize_depth(const glm::vec2& size);
 
 	int width() { return m_width; }
 	int height() { return m_height; }
@@ -53,11 +55,15 @@ public:
 	~FrameBuffer();
 
 	bool init(const glm::vec2& size);
+	void init_depth(const glm::vec2& size);
 	void bind();
 	void unbind();
 	void resize(const glm::vec2& size);
+	void resize_depth(const glm::vec2& size);
 
 	Texture* texture() const { return m_texture; }
+	const float width() const { return m_texture->width(); }
+	const float height() const { return m_texture->height(); }
 
 private:
 	GLuint m_rbo;

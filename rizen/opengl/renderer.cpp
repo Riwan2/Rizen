@@ -56,6 +56,13 @@ void Renderer::simple_render(Model* render_model, const glm::mat4& model)
     render_model->mesh()->render();
 }
 
+void Renderer::render_depth(Shader* depth_shader, Model* render_model, const glm::mat4& model)
+{
+    depth_shader->set_mat4("model", model);
+    render_model->mesh()->render();
+}
+
+
 void Renderer::render(Model* render_model, const glm::mat4& model)
 {
     render_model->material()->shader()->bind();
@@ -91,6 +98,16 @@ void Renderer::render_instanced(Model* render_model, glm::mat4* models, int num_
 
     render_model->mesh()->render_instanced(num_models);
 }
+
+void Renderer::render_instanced_depth(Shader* depth_shader, Model* render_model, glm::mat4* models, int num_models)
+{
+    //glBindBuffer(GL_ARRAY_BUFFER, render_model->instanced_vbo());
+    //glBufferData(GL_ARRAY_BUFFER, num_models * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, num_models * sizeof(glm::mat4), models);
+
+    //render_model->mesh()->render_instanced(num_models);
+}
+
 
 void Renderer::bind_ubo(Shader* shader)
 {

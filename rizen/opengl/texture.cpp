@@ -66,15 +66,40 @@ void Texture::init_framebuffer(const glm::vec2& size)
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	glBindTexture(GL_TEXTURE_2D, 0);
+
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_id, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Texture::init_framebuffer_depth(const glm::vec2& size)
+{
+	glGenTextures(1, &m_texture_id);
+	glBindTexture(GL_TEXTURE_2D, m_texture_id);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_texture_id, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::resize(const glm::vec2& size)
 {
 	glBindTexture(GL_TEXTURE_2D, m_texture_id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Texture::resize_depth(const glm::vec2& size)
+{
+	glBindTexture(GL_TEXTURE_2D, m_texture_id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -121,6 +146,20 @@ bool FrameBuffer::init(const glm::vec2& size)
 	return true;
 }
 
+void FrameBuffer::init_depth(const glm::vec2& size) 
+{
+	glGenFramebuffers(1, &m_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+	m_texture = new Texture();
+	m_texture->init_framebuffer_depth(size);
+
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void FrameBuffer::resize(const glm::vec2& size)
 {
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
@@ -129,6 +168,11 @@ void FrameBuffer::resize(const glm::vec2& size)
 	m_texture->resize(size);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);	
+}
+
+void FrameBuffer::resize_depth(const glm::vec2& size)
+{
+	m_texture->resize_depth(size);
 }
 
 /*

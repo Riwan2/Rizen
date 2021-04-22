@@ -7,37 +7,24 @@ in vec3 acolor;
 
 uniform samplerCube skybox;
 uniform vec3 fog_color = vec3(0, 0, 0);
+uniform float night_factor = 0;
 
 uniform float u_time;
-
-const float lowerLimit = -20;
-const float upperLimit = 50;
-
-const float PI = 3.147;
-
-float dezoom = 0.5;
-
-vec4 matin = vec4(217, 135, 115, 255) / 255.0;
-vec4 midi = vec4(132, 194, 207, 255) / 255.0;
-vec4 soir = vec4(179, 98, 100, 255) / 255.0;
 
 void main() 
 {
     vec3 tex_coord = tex_coord;
 	vec4 texture_color = texture(skybox, tex_coord);
+	
 	//float factor = (tex_coord.y - lowerLimit) / (upperLimit - lowerLimit);
 	//factor = clamp(factor, 0.0, 1.0);
 	//out_color = mix(vec4(fog_color, 1.0), texture_color, factor);
 
 	vec4 sky_color = vec4(acolor, 1.0);
 	out_color = sky_color;
+	out_color = mix(out_color, texture_color, night_factor);
 
-	// if (cos(time / 2 - PI / 2) >= 0) {
-	// 	out_color = sky_color;
-	// } else {
-	// 	out_color = mix(sky_color, texture_color, abs(cos(time / 2 - PI / 2)));
-	// 	last_sky_color = mix(soir, vec4(0.1, 0.0, 0.3, 1.0), abs(cos(time / 2 - PI / 2)));
-	// }
-
-	//out_color = mix(out_color, last_sky_color, factor);
+	float factor = tex_coord.y / 0.3;
+	vec4 gradient = mix(sky_color, vec4(0.2), 0.5);
+	out_color = mix(out_color, gradient, factor);
 }

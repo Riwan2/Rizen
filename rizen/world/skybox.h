@@ -6,13 +6,14 @@
 #include "../opengl/camera.h"
 
 #include "../utils/rizen_time.h"
+#include "../utils/rizen_math.h"
 
 class SkyBox {
 public:
     ~SkyBox();
     
     void init(Shader* shader, const std::vector<std::string>& faces_filename);
-    void render(Camera* camera);
+    void render(Camera* camera, float night_factor);
 
 private:
     GLuint m_vao;

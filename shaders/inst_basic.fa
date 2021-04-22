@@ -66,8 +66,7 @@ void main()
 		frag_color = texture(aTexture, fs_in.tex_coord) * result;
 	else
 		frag_color = result;
-	// frag_color = vec4(1.0);
 
-	//float depth = calculateDepth();
-	//FragColor = vec4(vec3(depth), 1.0);
+	//float depth = calculate_depth();
+	//frag_color = vec4(vec3(depth), 1.0);
 }

@@ -24,14 +24,20 @@ static entt::entity renderable_blueprint(entt::registry& registry, Model* model)
 
 class RenderSystem {
 public:
-    void render(Renderer* renderer, entt::registry& registry);
+    void begin(entt::registry& registry);
+    void end();
+
+    void render(Renderer* renderer);
+    void render_depth(Shader* depth_shader, Renderer* renderer);
 
 private:
     GLuint m_ubo;
     std::unordered_map<Model*, std::queue<TransformComponent*>> m_render_map;
 
-    void render(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch);
-    void render_instanced(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch);
+    void render_batch(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch);
+    void render_batch_depth(Shader* depth_shader, Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch);
+    void render_instanced_batch(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch);
+    void render_instanced_batch_depth(Shader* depth_shader, Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch);
 };
 
 #endif //RENDER_SYSTEM_H

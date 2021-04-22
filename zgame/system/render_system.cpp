@@ -7,7 +7,7 @@
 #define MATRICES_SIZE 64
 #define MATRICES_INDEX 0
 
-void RenderSystem::render(Renderer* renderer, entt::registry& registry)
+void RenderSystem::begin(entt::registry& registry)
 {
     auto group = registry.group<TransformComponent, RenderComponent>();
 
@@ -26,7 +26,15 @@ void RenderSystem::render(Renderer* renderer, entt::registry& registry)
             pair->second.push(&transform);
         }
     }
+}
 
+void RenderSystem::end()
+{
+    m_render_map.clear();
+}
+
+void RenderSystem::render(Renderer* renderer)
+{
     for (auto pair : m_render_map) {
         auto batch = pair.second;
         Model* model = pair.first;
@@ -41,15 +49,26 @@ void RenderSystem::render(Renderer* renderer, entt::registry& registry)
             texture->bind();
 
         if (!model->instanced())
-            render(renderer, model, batch);
+            render_batch(renderer, model, batch);
         else
-            render_instanced(renderer, model, batch);
+            render_instanced_batch(renderer, model, batch);
     }
-
-    m_render_map.clear();
 }
 
-void RenderSystem::render(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch)
+void RenderSystem::render_depth(Shader* depth_shader, Renderer* renderer)
+{
+     for (auto pair : m_render_map) {
+        auto batch = pair.second;
+        Model* model = pair.first;
+
+        if (!model->instanced())
+            render_batch_depth(depth_shader, renderer, model, batch);
+        else
+            render_instanced_batch_depth(depth_shader, renderer, model, batch);
+    }
+}
+
+void RenderSystem::render_batch(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch)
 {
      while (!batch.empty()) {
         auto transform = batch.front();
@@ -58,7 +77,17 @@ void RenderSystem::render(Renderer* renderer, Model* model, std::queue<Transform
     }
 }
 
-void RenderSystem::render_instanced(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch)
+void RenderSystem::render_batch_depth(Shader* depth_shader, Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch)
+{
+    while (!batch.empty()) {
+        auto transform = batch.front();
+        renderer->render_depth(depth_shader, model, transform->model());
+        batch.pop();
+    }
+}
+
+
+void RenderSystem::render_instanced_batch(Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch)
 {
     int num_entities = batch.size();
 
@@ -71,4 +100,19 @@ void RenderSystem::render_instanced(Renderer* renderer, Model* model, std::queue
 
     renderer->simple_render_instanced(model, models, num_entities);
     delete[] models;
+}
+
+void RenderSystem::render_instanced_batch_depth(Shader* depth_shader, Renderer* renderer, Model* model, std::queue<TransformComponent*>& batch)
+{
+    int num_entities = batch.size();
+
+    glm::mat4* models = new glm::mat4[num_entities];
+    for (int i = 0; i < num_entities; i++) {
+        auto transform = batch.front();
+        models[i] = transform->model();
+        batch.pop();
+    }
+
+    renderer->render_instanced_depth(depth_shader, model, models, num_entities);
+    delete[] models;   
 }

@@ -42,6 +42,7 @@ public:
     void reset_random();
 
     void render(Renderer* renderer);
+    void render_depth(Shader* depth_shader, Renderer* renderer);
 
     float get_heigth(const glm::vec2& world_pos);
     glm::vec3 get_precise_normal(const glm::vec2& world_pos, float offset = 1.0);

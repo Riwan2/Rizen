@@ -151,6 +151,13 @@ void Map::render(Renderer* renderer)
     glEnable(GL_CULL_FACE);
 }
 
+void Map::render_depth(Shader* depth_shader, Renderer* renderer)
+{
+    glDisable(GL_CULL_FACE);
+    renderer->render_depth(depth_shader, m_render_model, m_model);
+    glEnable(GL_CULL_FACE);
+}
+
 float Map::get_heigth(const glm::vec2& world_pos)
 {
     glm::vec2 map_pos = world_pos - glm::vec2(m_position.x, m_position.z);

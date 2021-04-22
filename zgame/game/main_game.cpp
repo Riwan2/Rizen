@@ -6,6 +6,7 @@
 
 // 2D
 FrameBuffer frame_buffer;
+FrameBuffer depth_frame_buffer;
 Square fbuffer_square;
 
 // 3D
@@ -40,6 +41,8 @@ void MainGame::load(App* app)
     app->ressource_manager()->add_shader("basic_2d", "2d/basic.vr", "2d/basic.fa");
     app->ressource_manager()->add_shader("basic", "basic.vr", "basic.fa");
     app->ressource_manager()->add_shader("basic_instanced", "inst_basic.vr", "inst_basic.fa");
+    app->ressource_manager()->add_shader("shadow", "shadow/shadow.vr", "shadow/shadow.fa");
+
     app->ressource_manager()->add_shader("map", "terrain/map.vr", "terrain/map.fa");
     app->ressource_manager()->add_shader("skybox", "terrain/skybox.vr", "terrain/skybox.fa");
     
@@ -124,7 +127,8 @@ void MainGame::load(App* app)
         info.ambient = 0.3;
         info.reflectivity = 0.0;
         info.texture = app->ressource_manager()->texture("sheep");
-        Shader* shader = app->ressource_manager()->shader("basic_instanced");
+        //Shader* shader = app->ressource_manager()->shader("basic_instanced");
+        Shader* shader = app->ressource_manager()->shader("basic");
         app->ressource_manager()->add_material("sheep", shader, info);
     }
 
@@ -134,9 +138,9 @@ void MainGame::load(App* app)
 
     app->ressource_manager()->add_model("cube", "cube", "basic");
     app->ressource_manager()->add_model("character", "character", "character");
-    app->ressource_manager()->add_model("sheep", "sheep", "sheep", true);
+    //app->ressource_manager()->add_model("sheep", "sheep", "sheep", true);
+    app->ressource_manager()->add_model("sheep", "sheep", "sheep", false);
     app->ressource_manager()->add_model("tree", "tree", "tree", true);
-
 }
 
 /*
@@ -152,8 +156,11 @@ void MainGame::init(App* app)
     frame_buffer.init(d_size);
     fbuffer_square.set_origin(glm::vec2(0.5));
     fbuffer_square.set_pos(d_size * 0.5f);
-    fbuffer_square.set_size(d_size * 0.8f);
+    //fbuffer_square.set_size(d_size * 0.8f);
+    fbuffer_square.set_size(d_size * 1.0f);
     fbuffer_square.update_transform();
+
+    depth_frame_buffer.init_depth(d_size);
 
     // camera
     camera_tps.init(Input::display_size());
@@ -203,7 +210,7 @@ void MainGame::init_entities(App* app)
         transform->update();
     }
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 400; i++) {
         auto entity = bounce_blueprint(registry, app->ressource_manager()->model("sheep"));
         {
             auto move = &registry.get<MoveComponent>(entity);
@@ -218,7 +225,7 @@ void MainGame::init_entities(App* app)
             bounce->direction_timer.init(500);
 
             // transform
-            float radius = 40;
+            float radius = 50;
 
             int x = rand_float(-radius, radius);
             x = cos(x / radius) * x;
@@ -320,6 +327,8 @@ void MainGame::update_imgui(App* app)
     ImGui::Text("Nb Entities: %d", (int)registry.size());
     ImGui::End();
 
+    m_day_manager.imgui_update();
+
     ImGui::PopStyleVar();
 }
 
@@ -336,8 +345,9 @@ void MainGame::update(App* app)
     if (Input::on_resized()) {
         glm::vec2 d_size = Input::display_size();
         frame_buffer.resize(d_size);
+        depth_frame_buffer.resize_depth(d_size);
         fbuffer_square.set_pos(d_size * 0.5f);
-        fbuffer_square.set_size(d_size * 0.8f);
+        fbuffer_square.set_size(d_size * 1.0f);
         fbuffer_square.update_transform();
         camera_tps.resize(d_size);
     }
@@ -355,12 +365,6 @@ void MainGame::update(App* app)
     bounce_system.update(registry, &map);
     input_move_system.update(registry, &map);
     move_system.update(registry);
-
-    // fps
-    //std::cout << 1 / Time::delta() * 1000 << "\n";
-
-    // update camera
-    //camera_tps.move_angle_around(0.1 * Time::game_delta());
     
     //auto player_trans = registry.try_get<TransformComponent>(player);
     //auto player_move = registry.try_get<InputMoveComponent>(player);
@@ -371,10 +375,6 @@ void MainGame::update(App* app)
     //if (player_trans) {
     //    camera_tps.set_target(player_trans->position());
     //}
-
-    //if (Input::key_down(SDLK_UP))
-    //    camera_tps.move_angle_y(0.5 * Time::game_delta());
-
 
     // set camera angle y with the controller
     //float controller_y = Input::right_controller_axis().y * Time::game_delta();
@@ -398,9 +398,6 @@ void MainGame::update(App* app)
     //     if (controller_y < 0 && camera_tps.angle_y() > 20)
     //         camera_tps.move_angle_y(controller_y);
     // }
-
-    // camera_tps.set_position(cam_pos);
-    // camera_tps.update_view();
 
     /*
         Camera Movement
@@ -437,45 +434,84 @@ void MainGame::update(App* app)
     camera_tps.update();
     m_day_manager.update();
 
-    ImGui::Begin("Time");
-    ImGui::Text("Day Time: %i", (int)DAY_TIME);
-    ImGui::Text("Current Time: %09f", m_day_manager.time());
-    ImGui::ProgressBar(m_day_manager.progress());
-    ImGui::ProgressBar(MORNING, ImVec2(-1, 0), "morning");
-    ImGui::ProgressBar(MIDI, ImVec2(-1, 0), "midi");
-    ImGui::ProgressBar(EVENING, ImVec2(-1, 0), "evening");
-    ImGui::Text("Current Hour: %02i:%02i", m_day_manager.hour(), m_day_manager.minute());
+    render_system.begin(registry);
 
-    ImGui::ColorEdit3("Night Color", glm::value_ptr(NIGHT_COLOR));
 
-    ImGui::Text("Morning time: %f -> %i", MORNING_TIME, int(MORNING_TIME / (DAY_TIME / 24)));
-    ImGui::ColorEdit3("Morning Color", glm::value_ptr(MORNING_COLOR));
 
-    ImGui::Text("Midi time: %f -> %i", MIDI_TIME, int(MIDI_TIME / (DAY_TIME / 24)));
-    ImGui::ColorEdit3("Midi Color", glm::value_ptr(MIDI_COLOR));
 
-    ImGui::Text("Evening time: %f -> %i", EVENING_TIME, int(EVENING_TIME / (DAY_TIME / 24)));
-    ImGui::ColorEdit3("Evening Color", glm::value_ptr(EVENING_COLOR));
+    Shader* shadow_shader = app->ressource_manager()->shader("shadow");
+    glm::vec3 lightInvDir = m_day_manager.sun_direction() * 100.0f;
 
-    ImGui::ColorButton("SkyColor", ImVec4(m_day_manager.sky_color().x, m_day_manager.sky_color().y,
-                                          m_day_manager.sky_color().z, 1.0), 0, ImVec2(200, 50));
+    float near_plane = 1.0f, far_plane = 1000.0f;
+    float distance = camera_tps.distance() - 20.0f;
+    glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, near_plane, far_plane);  
 
-    ImGui::End();
+    // Compute the MVP matrix from the light's point of view
+    //float dist = 80;
+    //glm::mat4 depthProjectionMatrix = glm::ortho<float>(-70, 70, -70, 70, 1, 180);
+
+    glm::mat4 lightView = glm::lookAt(lightInvDir, 
+                                  glm::vec3( 0.0f, 0.0f,  0.0f), 
+                                  glm::vec3( 0.0f, 1.0f,  0.0f));  
+    //glm::mat4 depthModelMatrix = glm::mat4(1.0);
+    //glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+
+    glm::mat4 depthMVP = lightProjection * lightView;
+
+    shadow_shader->bind();
+    shadow_shader->set_mat4("projection_view", depthMVP);
+    shadow_shader->set_mat4("bias", depthMVP);
+
+    depth_frame_buffer.bind();
+
+    glCullFace(GL_FRONT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    
+    //map.render_depth(shadow_shader, app->renderer());
+    render_system.render_depth(shadow_shader, app->renderer());
+
+    depth_frame_buffer.unbind();
+
+    glCullFace(GL_BACK);
+
+
+
+    app->ressource_manager()->shader("map")->bind();
+    app->ressource_manager()->shader("map")->set_mat4("lightSpaceMatrix", depthMVP);
+    
+    app->ressource_manager()->shader("map")->set_int("shadowMap", 1);
+
+    glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depth_frame_buffer.texture()->texture_id());
 
     // // render 3D objects
     frame_buffer.bind();
 
     app->renderer()->begin(&camera_tps, m_day_manager.sun_direction(), m_day_manager.sky_color());
     app->clear(glm::vec4(0.95));
-
-    skybox.render(&camera_tps);
-    render_system.render(app->renderer(), registry);
+    skybox.render(&camera_tps, m_day_manager.night_factor());
+    render_system.render(app->renderer());
     map.render(app->renderer());
 
     app->renderer()->end();
     frame_buffer.unbind();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+
+    render_system.end();
+
+
+
+
+    glViewport(0, 0, Input::display_size().x, Input::display_size().y);
+
+    ImGui::Begin("Depth");
+    ImGui::Image((void*)(intptr_t)depth_frame_buffer.texture()->texture_id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::End();
 
     // // render frame buffer
     app->renderer_2d()->begin(Input::display_size(), app->ressource_manager()->shader("basic_2d"));

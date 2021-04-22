@@ -53,6 +53,8 @@ public:
      */
     void simple_render(Model* render_model, const glm::mat4& model);
 
+    void render_depth(Shader* depth_shader, Model* render_model, const glm::mat4& model);
+
     /**
      * @brief Render the object with the render model and material.
      * @param render_model
@@ -75,6 +77,8 @@ public:
      * @param num_models num of model matrices
      */
     void render_instanced(Model* render_model, glm::mat4* models, int num_models);
+
+    void render_instanced_depth(Shader* depth_shader, Model* render_model, glm::mat4* models, int num_models);
 
 private:
     GLuint m_ubo;
