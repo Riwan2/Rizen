@@ -62,23 +62,39 @@ public:
      */
     void render(Model* render_model, const glm::mat4& model);
 
+
     /**
-    * @brief Simply render the instanced object and bind the transform matrices.
-    * @param render_model
-    * @param models array of model matrices
-    * @param num_models num of model matrices
-    */
-    void simple_render_instanced(Model* render_model, glm::mat4* models, int num_models);
-    
-    /**
-     * @brief Render the instanced object with the render model and material.
-     * @param render_model
+     * @brief Update the instanced vbo for the render model
+     * Call this method before any instanced rendering
+     * @param render_model 
      * @param models array of model matrices
      * @param num_models num of model matrices
      */
-    void render_instanced(Model* render_model, glm::mat4* models, int num_models);
+    void update_instanced(Model* render_model, glm::mat4* models, int num_models);
 
-    void render_instanced_depth(Shader* depth_shader, Model* render_model, glm::mat4* models, int num_models);
+    /**
+    * @brief Simply render the instanced object.
+    * Don't forget to call update_instanced if needed.
+    * @param render_model
+    * @param num_object number of objects
+    */
+    void simple_render_instanced(Model* render_model, int num_objects);
+
+    /**
+     * @brief Call this method for depth rendering
+     * Don't forget to call update_instanced if needed.
+     * @param render_model 
+     * @param num_objects numbe rof objects
+     */
+    void render_instanced_depth(Shader* depth_shader, Model* render_model, int num_objects);
+    
+    /**
+     * @brief Render the instanced object with the render model and material.
+     * Don't forget to call update_instanced if needed.
+     * @param render_model
+     * @param num_objects number of objects
+     */
+    void render_instanced(Model* render_model, int num_objects);
 
 private:
     GLuint m_ubo;

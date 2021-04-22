@@ -53,6 +53,7 @@ Model::~Model() {}
 void Model::init(Mesh* mesh, Material* material) 
 {
 	m_instanced = false;
+	m_num_instanced = 0;
 	m_mesh = mesh;
 	m_material = material;
 }

@@ -59,14 +59,8 @@ void main()
 	vec3 ambient_lighting = calculate_ambient();
 	vec3 diffuse = calculate_diffuse(norm, light_dir);
 	vec3 specular = calculate_specular(norm, light_dir);
-	
 
-	
 	vec4 result = vec4(ambient_lighting + diffuse + specular, 1.0) * color;
-
-
-
-
 
 	if (textured)
 		frag_color = texture(aTexture, fs_in.tex_coord) * result;

@@ -40,7 +40,6 @@ void MainGame::load(App* app)
 
     app->ressource_manager()->add_shader("basic_2d", "2d/basic.vr", "2d/basic.fa");
     app->ressource_manager()->add_shader("basic", "basic.vr", "basic.fa");
-    app->ressource_manager()->add_shader("basic_instanced", "inst_basic.vr", "inst_basic.fa");
     app->ressource_manager()->add_shader("shadow", "shadow/shadow.vr", "shadow/shadow.fa");
 
     app->ressource_manager()->add_shader("map", "terrain/map.vr", "terrain/map.fa");
@@ -81,15 +80,6 @@ void MainGame::load(App* app)
         app->ressource_manager()->add_material("basic", shader, info);
     }
 
-    // Basic instanced
-    {
-        MaterialInfo info;
-        info.color = glm::vec4(0, 0, 1, 1);
-        info.ambient = 0.5;
-        Shader* shader = app->ressource_manager()->shader("basic_instanced");
-        app->ressource_manager()->add_material("basic_instanced", shader, info);
-    }
-
     // Character
     {
         MaterialInfo info;
@@ -117,7 +107,7 @@ void MainGame::load(App* app)
         info.ambient = 0.3;
         info.reflectivity = 0.0;
         info.texture = app->ressource_manager()->texture("tree");
-        Shader* shader = app->ressource_manager()->shader("basic_instanced");
+        Shader* shader = app->ressource_manager()->shader("basic");
         app->ressource_manager()->add_material("tree", shader, info);
     }
 
@@ -127,7 +117,6 @@ void MainGame::load(App* app)
         info.ambient = 0.3;
         info.reflectivity = 0.0;
         info.texture = app->ressource_manager()->texture("sheep");
-        //Shader* shader = app->ressource_manager()->shader("basic_instanced");
         Shader* shader = app->ressource_manager()->shader("basic");
         app->ressource_manager()->add_material("sheep", shader, info);
     }
@@ -137,9 +126,8 @@ void MainGame::load(App* app)
     */
 
     app->ressource_manager()->add_model("cube", "cube", "basic");
-    app->ressource_manager()->add_model("character", "character", "character");
-    //app->ressource_manager()->add_model("sheep", "sheep", "sheep", true);
-    app->ressource_manager()->add_model("sheep", "sheep", "sheep", false);
+    app->ressource_manager()->add_model("character", "character", "character", false);
+    app->ressource_manager()->add_model("sheep", "sheep", "sheep", true);
     app->ressource_manager()->add_model("tree", "tree", "tree", true);
 }
 
@@ -210,7 +198,7 @@ void MainGame::init_entities(App* app)
         transform->update();
     }
 
-    for (int i = 0; i < 400; i++) {
+    for (int i = 0; i < 4000; i++) {
         auto entity = bounce_blueprint(registry, app->ressource_manager()->model("sheep"));
         {
             auto move = &registry.get<MoveComponent>(entity);
@@ -435,8 +423,6 @@ void MainGame::update(App* app)
     m_day_manager.update();
 
     render_system.begin(registry);
-
-
 
 
     Shader* shadow_shader = app->ressource_manager()->shader("shadow");

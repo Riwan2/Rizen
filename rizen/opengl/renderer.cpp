@@ -52,16 +52,17 @@ void Renderer::end()
 
 void Renderer::simple_render(Model* render_model, const glm::mat4& model)
 {
+    render_model->material()->shader()->set_bool("instanced", false);
     render_model->material()->shader()->set_mat4("model", model);
     render_model->mesh()->render();
 }
 
 void Renderer::render_depth(Shader* depth_shader, Model* render_model, const glm::mat4& model)
 {
+    depth_shader->set_bool("instanced", false);
     depth_shader->set_mat4("model", model);
     render_model->mesh()->render();
 }
-
 
 void Renderer::render(Model* render_model, const glm::mat4& model)
 {
@@ -75,16 +76,22 @@ void Renderer::render(Model* render_model, const glm::mat4& model)
     render_model->mesh()->render();
 }
 
-void Renderer::simple_render_instanced(Model* render_model, glm::mat4* models, int num_models)
+void Renderer::update_instanced(Model* render_model, glm::mat4* models, int num_models)
 {
     glBindBuffer(GL_ARRAY_BUFFER, render_model->instanced_vbo());
     glBufferData(GL_ARRAY_BUFFER, num_models * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, num_models * sizeof(glm::mat4), models);
 
+    render_model->set_num_instanced(num_models);
+}
+
+void Renderer::simple_render_instanced(Model* render_model, int num_models)
+{
+    render_model->material()->shader()->set_bool("instanced", true);
     render_model->mesh()->render_instanced(num_models);
 }
 
-void Renderer::render_instanced(Model* render_model, glm::mat4* models, int num_models)
+void Renderer::render_instanced(Model* render_model, int num_objects)
 {
     render_model->material()->shader()->bind();
     render_model->material()->populate();
@@ -92,22 +99,14 @@ void Renderer::render_instanced(Model* render_model, glm::mat4* models, int num_
     if (render_model->material()->texture())
         render_model->material()->texture()->bind();
 
-    glBindBuffer(GL_ARRAY_BUFFER, render_model->instanced_vbo());
-    glBufferData(GL_ARRAY_BUFFER, num_models * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, num_models * sizeof(glm::mat4), models);
-
-    render_model->mesh()->render_instanced(num_models);
+    render_model->mesh()->render_instanced(num_objects);
 }
 
-void Renderer::render_instanced_depth(Shader* depth_shader, Model* render_model, glm::mat4* models, int num_models)
+void Renderer::render_instanced_depth(Shader* depth_shader, Model* render_model, int num_objects)
 {
-    //glBindBuffer(GL_ARRAY_BUFFER, render_model->instanced_vbo());
-    //glBufferData(GL_ARRAY_BUFFER, num_models * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
-    //glBufferSubData(GL_ARRAY_BUFFER, 0, num_models * sizeof(glm::mat4), models);
-
-    //render_model->mesh()->render_instanced(num_models);
+    depth_shader->set_bool("instanced", true);
+    simple_render_instanced(render_model, num_objects);
 }
-
 
 void Renderer::bind_ubo(Shader* shader)
 {

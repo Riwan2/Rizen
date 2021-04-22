@@ -1,14 +1,20 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 3) in mat4 aModel;
 
 uniform mat4 projection_view;
 uniform mat4 model;
 uniform mat4 bias;
 
+uniform bool instanced;
+
 out vec4 shadow_coord;
 
 void main()
 {
-    gl_Position = projection_view * model * vec4(aPos, 1.0);
+    if (instanced)
+        gl_Position = projection_view * aModel * vec4(aPos, 1.0);
+    else
+        gl_Position = projection_view * model * vec4(aPos, 1.0);
     shadow_coord = bias * model * vec4(aPos, 1.0);
 }

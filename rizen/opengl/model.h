@@ -64,7 +64,7 @@ struct MaterialInfo {
     Texture* texture = nullptr;
     glm::vec4 color = glm::vec4(1.0);
     float shine_damper = 8.0;
-    float reflectivity = 1.0;
+    float reflectivity = 0.0;
     float ambient = 0.5;
 };
 
@@ -113,11 +113,13 @@ public:
     void init_instanced(Mesh* mesh, Material* material);
 
     void set_mesh(Mesh* mesh) { m_mesh = mesh; }
+    void set_num_instanced(int num_instanced) { m_num_instanced = num_instanced; }
 
     Mesh* mesh() const { return m_mesh; }
     Material* material() const { return m_material; }
 
     const bool instanced() const { return m_instanced; }
+    const int num_instanced() const { return m_num_instanced; }
     const GLuint instanced_vbo() const { return m_inst_vbo; }
 
 private:
@@ -125,6 +127,7 @@ private:
     Material* m_material;
     bool m_instanced;
     GLuint m_inst_vbo;
+    int m_num_instanced;
 };
 
 #endif //MODEL_H
