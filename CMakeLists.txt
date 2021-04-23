@@ -26,6 +26,7 @@ set(SOURCE_FILES
     zgame/system/input_move_system.cpp
     zgame/system/bounce_system.cpp
     zgame/game/main_game.cpp
+    zgame/game/main_scene.cpp
     zgame/game/day_manager.cpp
 )
 

@@ -6,7 +6,7 @@
 
 #include "../../extern/imgui/imgui.h"
 
-const float DAY_TIME = 24;
+const float DAY_TIME = 300;
 
 const float MORNING = 0.35f;
 const float MIDI = 0.55f;

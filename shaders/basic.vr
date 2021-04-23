@@ -27,13 +27,14 @@ out VS_OUT {
 
 void main()
 {
+	mat4 shader_model = model;
 	if (instanced)
-		gl_Position = projection_view * aModel * vec4(aPos, 1.0);
-	else
-		gl_Position = projection_view * model * vec4(aPos, 1.0);
+		shader_model = aModel;
+
+	gl_Position = projection_view * shader_model * vec4(aPos, 1.0);
 	
-	vs_out.frag_pos = vec3(model * vec4(aPos, 1.0));
-	vs_out.normal = mat3(transpose(inverse(model))) * aNorm;
+	vs_out.frag_pos = vec3(shader_model * vec4(aPos, 1.0));
+	vs_out.normal = mat3(transpose(inverse(shader_model))) * aNorm;
 	vs_out.tex_coord = aTexCoord;
 
 	vs_out.light_dir = sun_direction;
