@@ -11,11 +11,7 @@ void MainScene::init(App* app)
     load();
 
     // Camera
-    m_camera_tps.init(Input::display_size());
-    m_camera_tps.set_distance(100);
-    m_camera_tps.set_angle_y(15);
-    m_camera_tps.move_target(glm::vec3(0, 8, 0));
-    m_camera_tps.set_target(glm::vec3(0, -15, 0));
+    m_camera_control.init();
 
     // Map
     int size = 400;
@@ -248,48 +244,15 @@ void MainScene::init_entities()
 
 void MainScene::update()
 {
+    // System
     m_bounce_system.update(m_registry, &m_map);
     m_input_move_system.update(m_registry, &m_map);
     m_move_system.update(m_registry);
-
-    if (Input::on_resized()) {
-        glm::vec2 d_size = Input::display_size();
-        m_camera_tps.resize(d_size);
-    }
-
     
-    /*
-        Camera Movement
-    */
+    // Camera
+    m_camera_control.update();
 
-    glm::vec2 mouse_scroll = Input::mouse_scroll() * (float)Time::game_delta();
-
-    static float x_speed = 0;
-    x_speed = lerp(x_speed, x_speed + mouse_scroll.x, 0.3);
-    x_speed = lerp(x_speed, 0, 0.1);
-    m_camera_tps.move_angle_around(x_speed);
-
-    static float y_speed = 0;
-    if (abs(mouse_scroll.x) < 1) {
-        y_speed = lerp(y_speed, y_speed + mouse_scroll.y, 0.3);
-        y_speed = lerp(y_speed, 0, 0.1);
-        float distance = m_camera_tps.distance();
-        float distance_max = 120;
-        float factor = distance / distance_max + 0.2f;
-        float dist_speed = y_speed * factor;
-
-        //std::cout << distance << " speed: " << y_speed << " factor: " << factor << std::endl;
-        m_camera_tps.move_distance(dist_speed);
-
-        distance = m_camera_tps.distance();
-
-        if (distance > distance_max)
-            m_camera_tps.set_distance(lerp(distance, distance_max, 0.3));
-        else if (distance < 0)
-           m_camera_tps.set_distance(lerp(distance, 0, 0.3));
-    }
-
-    m_camera_tps.update();
+    // Day Manager
     m_day_manager.update();
 }
 
@@ -317,10 +280,10 @@ void MainScene::end_render()
 
 void MainScene::render()
 {
-    renderer()->begin(&m_camera_tps, m_day_manager.sun_direction(), m_day_manager.sky_color());
+    renderer()->begin(m_camera_control.camera(), m_day_manager.sun_direction(), m_day_manager.sky_color());
     m_app->clear(glm::vec4(0.95));
 
-    m_skybox.render(&m_camera_tps, m_day_manager.night_factor());
+    m_skybox.render(m_camera_control.camera(), m_day_manager.night_factor());
     m_render_system.render(renderer());
     m_map.render(renderer());
 

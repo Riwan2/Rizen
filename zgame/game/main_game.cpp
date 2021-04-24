@@ -11,6 +11,8 @@ Square fbuffer_square;
 
 MainScene main_scene;
 
+ShadowMap shadow_map;
+
 /*
     Init
 */
@@ -31,6 +33,8 @@ void MainGame::init(App* app)
     fbuffer_square.update_transform();
 
     depth_frame_buffer.init_depth(d_size);
+
+    shadow_map.init(app->ressource_manager()->shader("shadow"), d_size);
 }
 
 /*
@@ -42,10 +46,7 @@ void MainGame::update_imgui(App* app)
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.8f);
     
     main_scene.update_imgui();
-
-    ImGui::Begin("Depth");
-    ImGui::Image((void*)(intptr_t)depth_frame_buffer.texture()->texture_id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::End();
+    shadow_map.update_imgui();
 
     ImGui::PopStyleVar();
 }
@@ -63,10 +64,12 @@ void MainGame::update(App* app)
     if (Input::on_resized()) {
         glm::vec2 d_size = Input::display_size();
         frame_buffer.resize(d_size);
-        depth_frame_buffer.resize_depth(d_size);
+        depth_frame_buffer.resize_depth(d_size * 2.0f);
         fbuffer_square.set_pos(d_size * 0.5f);
         fbuffer_square.set_size(d_size * 1.0f);
         fbuffer_square.update_transform();
+
+        shadow_map.resize(d_size);
     }
 
     // Polygon Mode
@@ -82,47 +85,57 @@ void MainGame::update(App* app)
     // Update
     main_scene.update();
 
-    Shader* shadow_shader = app->ressource_manager()->shader("shadow");
-    glm::vec3 lightInvDir = main_scene.day_manager()->sun_direction() * 100.0f;
+    // Shader* shadow_shader = app->ressource_manager()->shader("shadow");
+    // glm::vec3 lightInvDir = main_scene.day_manager()->sun_direction() * 100.0f;
 
-    float near_plane = 1.0f, far_plane = 1000.0f;
-    //float distance = main_scene.camera_tps()->distance() - 20.0f;
-    float distance = 80.0f;
-    //float distance = 50.0f;
-    glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, near_plane, far_plane);  
-    glm::mat4 lightView = glm::lookAt(lightInvDir,
-                                  glm::vec3( 0.0f, 0.0f,  0.0f), 
-                                  glm::vec3( 0.0f, 1.0f,  0.0f));  
-    glm::mat4 depthMVP = lightProjection * lightView;
+    // float near_plane = 1.0f, far_plane = 1000.0f;
+    // float distance = 120.0f;
+    // //float distance = 50.0f;
+    // glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, near_plane, far_plane);  
+    // glm::mat4 lightView = glm::lookAt(lightInvDir,
+    //                               glm::vec3( 0.0f, 0.0f,  0.0f), 
+    //                               glm::vec3( 0.0f, 1.0f,  0.0f));  
+    // glm::mat4 depthMVP = lightProjection * lightView;
 
-    shadow_shader->bind();
-    shadow_shader->set_mat4("projection_view", depthMVP);
+    //shadow_shader->bind();
+    //shadow_shader->set_mat4("projection_view", depthMVP);
 
     // Render
 
     main_scene.begin_render();
     {
-        depth_frame_buffer.bind();
+        glm::vec2 dsize = Input::display_size();
+        // depth_frame_buffer.bind();
         
-        glCullFace(GL_FRONT);
-        glEnable(GL_DEPTH_TEST);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        // glViewport(0, 0, dsize.x * 2, dsize.y * 2);
+
+        // glCullFace(GL_FRONT);
+        // glEnable(GL_DEPTH_TEST);
+        // glEnable(GL_CULL_FACE);
+        // glClear(GL_DEPTH_BUFFER_BIT);
+
+        shadow_map.begin_depth_render(main_scene.day_manager()->sun_direction());
         
-        main_scene.render_depth(shadow_shader);
+        main_scene.render_depth(shadow_map.depth_shader());
 
-        depth_frame_buffer.unbind();
+        shadow_map.end_depth_render();
 
-        glCullFace(GL_BACK);
+        //depth_frame_buffer.unbind();
+
+        //glCullFace(GL_BACK);
 
         app->ressource_manager()->shader("map")->bind();
-        app->ressource_manager()->shader("map")->set_mat4("lightSpaceMatrix", depthMVP);
+        app->ressource_manager()->shader("map")->set_mat4("lightSpaceMatrix", shadow_map.light_projection_view());
         app->ressource_manager()->shader("map")->set_int("shadowMap", 1);
 
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, depth_frame_buffer.texture()->texture_id());
+        glBindTexture(GL_TEXTURE_2D, shadow_map.texture_id());
 
         // // render 3D objects
         frame_buffer.bind();
+
+        glViewport(0, 0, dsize.x, dsize.y);
+
         main_scene.render();    
         frame_buffer.unbind();
     }

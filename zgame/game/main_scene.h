@@ -8,6 +8,7 @@
 
 #include "../../rizen/rizen.h"
 
+#include "camera_control.h"
 #include "day_manager.h"
 
 class MainScene {
@@ -23,7 +24,7 @@ public:
     void update_imgui();
 
     DayManager* day_manager() { return &m_day_manager; }
-    CameraTPS* camera_tps() { return &m_camera_tps; }
+    Camera* camera() { return m_camera_control.camera(); }
 
 private:
     App* m_app;
@@ -37,7 +38,7 @@ private:
 
     SkyBox m_skybox;
     Map m_map;
-    CameraTPS m_camera_tps;
+    CameraControl m_camera_control;
     DayManager m_day_manager;
 
     MoveSystem m_move_system;

@@ -28,6 +28,8 @@ set(SOURCE_FILES
     zgame/game/main_game.cpp
     zgame/game/main_scene.cpp
     zgame/game/day_manager.cpp
+    zgame/game/camera_control.cpp
+    zgame/game/shadow_map.cpp
 )
 
 message("")

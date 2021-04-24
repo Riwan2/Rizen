@@ -2,6 +2,7 @@
 #define MAIN_GAME_H
 
 #include "main_scene.h"
+#include "shadow_map.h"
 
 class MainGame {
 public:
